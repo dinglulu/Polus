@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>DNA storage simulation platform</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/fonts/icomoon/style.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/jquery.fancybox.min.css">
+    <link rel="stylesheet" href="/static/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/static/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/static/fonts/flaticon/font/flaticon.css">
+    <link rel="stylesheet" href="/static/css/aos.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <style>
+        .site-menu li > a.nav-link {
+            color: black;
+            transition: all 0.3s ease;
+        }
+
+        .site-menu li.active > a.nav-link {
+            background-color: #007bff;
+            color: white !important;
+            border-radius: 6px;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        .site-menu li > a.nav-link:hover {
+            background-color: #e6f0ff;
+            color: black !important;
+            border-radius: 6px;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+    </style>
+
+    {% block link %}{% endblock %}
+    {% block css %}{% endblock %}
+</head>
+
+<body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
+
+<div class="site-wrap" id="home-section">
+    <header class="site-navbar js-sticky-header site-navbar-target" role="banner" style="padding: 8px 0;">
+        <div class="container-fluid" style="padding-left: 30px; padding-right: 0;">
+            <div class="row align-items-center position-relative" style="padding-left: 0; padding-right: 0;">
+                <div class="site-logo">
+                    <a href="/polls/home" class="text-black"><span class="text-primary">DNA storage simulation platform</span></a>
+                </div>
+                <div class="col-12">
+                    <nav class="site-navigation text-right ml-auto" role="navigation">
+                        <ul class="site-menu main-menu js-clone-nav ml-auto d-none d-lg-block">
+
+                            <li class="{% if request.path == '/polls/home' %}active{% endif %}">
+                                <a href="/polls/home" class="nav-link">Home</a>
+                            </li>
+                            <li class="{% if request.path == '/polls/encode' %}active{% endif %}">
+                                <a href="/polls/encode" class="nav-link">Encode</a>
+                            </li>
+                            <li class="{% if request.path == '/polls/simulate' %}active{% endif %}">
+                                <a href="/polls/simulate" class="nav-link">Simulate DNA Storage Channel</a>
+                            </li>
+                            <li class="{% if request.path == '/decode' %}active{% endif %}">
+                                <a href="/polls/decode" class="nav-link">Decode</a>
+                            </li>
+                            <li class="{% if request.path == '/classification/' %}active{% endif %}">
+                                <a href="/polls/evaluate" class="nav-link">Evaluate</a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+
+                <div class="toggle-button d-inline-block d-lg-none">
+                    <a href="#" class="site-menu-toggle py-5 js-menu-toggle text-black">
+                        <span class="icon-menu h3"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+</div>
+
+<script src="/static/js/jquery-3.3.1.min.js"></script>
+<script src="/static/js/popper.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/owl.carousel.min.js"></script>
+<script src="/static/js/jquery.sticky.js"></script>
+<script src="/static/js/jquery.waypoints.min.js"></script>
+<script src="/static/js/jquery.animateNumber.min.js"></script>
+<script src="/static/js/jquery.fancybox.min.js"></script>
+<script src="/static/js/jquery.easing.1.3.js"></script>
+<script src="/static/js/aos.js"></script>
+<script src="/static/js/main.js"></script>
+{% block script %}{% endblock %}
+
+</body>
+</html>

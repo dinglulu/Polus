@@ -1,0 +1,228 @@
+
+$(document).ready(function () {
+function initUploader(prefix) {
+const uploadBtn = $(`#uploadBtn_${prefix}`);
+const inputFile = $(`#inputFile_${prefix}`);
+const previewContainer = $(`#preview_${prefix}`);
+const progressContainer = $(`#uploadProgressContainer_${prefix}`);
+const progressBar = $(`#uploadProgressBar_${prefix}`);
+const fileLabel = $(`#fileNameLabel_${prefix}`);
+
+// 1. 当用户选择文件
+inputFile.on('change', function (e) {
+if (e.target.files.length > 0) {
+const fileName = e.target.files[0].name;
+uploadBtn.click();
+fileLabel.text(fileName);
+{#previewContainer.html('File selected: ' + fileName + '. Click "Upload to Preview".');#}
+{#progressContainer.hide();#}
+progressBar.width('0%').text('0%');
+} else {
+uploadBtn.hide();
+previewContainer.text('No file selected.');
+}
+});
+
+// 2. 点击上传预览
+uploadBtn.on('click', function () {
+const file = inputFile[0].files[0];
+if (!file) {
+alert("Please select a file first.");
+return;
+}
+
+const formData = new FormData();
+formData.append('file_for_preview', file);
+formData.append('uploader_prefix', prefix);
+// Django 后端 URL（你需定义该 view）
+const uploadUrl = "{% url 'preview_fasta_file_for_cluster_and_reconstruct' %}";
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+const xhr = new XMLHttpRequest();
+xhr.open('POST', uploadUrl, true);
+xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+// 进度条更新
+xhr.upload.onprogress = function (e) {
+if (e.lengthComputable) {
+const percentComplete = (e.loaded / e.total) * 100;
+progressContainer.show();
+progressBar.width(percentComplete + '%');
+progressBar.text(Math.round(percentComplete) + '%');
+}
+};
+
+xhr.onerror = function () {
+alert('An error occurred during the upload. Please try again.');
+progressContainer.hide();
+};
+
+xhr.onload = function () {
+progressContainer.hide();
+if (xhr.status === 200) {
+const response = JSON.parse(xhr.responseText);
+previewContainer.html('');
+
+if (response.success) {
+const fileContent = response.file_content;
+const fileType = response.file_type;
+
+previewContainer[0].style.setProperty('height', '200px', 'important');
+
+if (fileType.startsWith('image/')) {
+const img = $('<img>').attr('src', fileContent).addClass('img-fluid');
+previewContainer.append(img);
+} else if (fileType.startsWith('text/')) {
+const pre = $('<pre>').text(fileContent);
+                        previewContainer.append(pre);
+                    } else {
+                        previewContainer.text(`'${response.file_name}' is a binary file. No preview available.`);
+                    }
+                } else {
+                    previewContainer.text('Error: ' + response.error);
+                }
+            } else {
+                previewContainer.text('Server error: Could not process the file.');
+            }
+        };
+
+        xhr.send(formData);
+    });
+}
+        function init_showfilename(hiddenInputId, labelId) {
+    const val = document.getElementById(hiddenInputId).value;
+    if (val) {
+        const label = document.getElementById(labelId);
+        label.textContent = val;
+        // 若使用 bootstrap4 的自定义 file，需要加 selected
+        label.classList.add('selected');
+    }
+}
+        // 初始化两个上传模块
+function scrollPositionPersistence() {
+    const STORAGE_KEY = 'scrollPosition';
+
+    window.addEventListener('scroll', function () {
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        sessionStorage.setItem(STORAGE_KEY, scrollPosition);
+    });
+
+    window.addEventListener('load', function () {
+        const scrollPosition = sessionStorage.getItem(STORAGE_KEY);
+        if (scrollPosition) {
+            window.scrollTo(0, parseInt(scrollPosition, 10));
+        }
+    });
+}
+        initUploader('simulate');
+        initUploader('ref');
+        initUploader('ori_file')
+        // 更新文件选择器的标签
+        $('#file2').on('change', function (e) {
+            var fileName = e.target.files[0].name;
+            $("#fileNameLabel2").html(fileName);
+        });
+        // 更新文件选择器的标签
+        $('#file3').on('change', function (e) {
+            var fileName = e.target.files[0].name;
+            $("#fileNameLabel3").html(fileName);
+        });
+        const STORAGE_KEY = 'scrollPosition';
+
+
+
+        $('#reconstruct').change(function () {
+            var reconstruct = $(this).val();
+            {#console.log(reconstruct)#}
+            if (reconstruct === 'yes') {
+                $('#rebuild_method_isshow').show();
+
+
+                if ($('#rebuild_method').val() === 'SeqFormer' || $('#rebuild_method').val() === 'bsalign') {
+                    $('#baseconfidence_div').show();
+                    $('#copy_num').show();
+                }
+            } else {
+
+                $('#rebuild_method_isshow').hide();
+                $('#baseconfidence_div').hide();
+                $('#copy_num').hide();
+
+            }
+        });
+
+        $('#cluster_method').change(function () {
+            var cluster = $(this).val();
+            if (cluster === 'no') {
+                $('#inputFile').prop('disabled', true);
+                $('#cluster_file').prop('disabled', true);
+                $('#rebuild_method').prop('disabled', true);
+                $('#reconstruct').prop('disabled', true);
+                $('#confidence_yes').prop('disabled', true);
+                $('#confidence_no').prop('disabled', true);
+                $('#index_length_div').hide();
+            } else {
+                $('#inputFile').prop('disabled', false);
+                $('#cluster_file').prop('disabled', false);
+                $('#rebuild_method').prop('disabled', false);
+                $('#reconstruct').prop('disabled', false);
+                $('#confidence_yes').prop('disabled', false);
+                $('#confidence_no').prop('disabled', false);
+                if (cluster === 'index') {
+                    $('#index_length_div').show();
+                } else {
+                    $('#index_length_div').hide();
+                }
+            }
+
+        });
+
+        $('#rebuild_method').change(function () {
+            var method = $(this).val();
+            if (method === 'SeqFormer' || method === 'bsalign') {
+                $('#baseconfidence_div').show();
+                $('#copy_num').show();
+            } else {
+                $('#baseconfidence_div').hide();
+                $('#copy_num').hide();
+            }
+        });
+
+        $('#method').change(function () {
+            var method = $(this).val();
+            if (method === 'fountain' || method === 'PolarCode' || method === 'YYC') {
+                $('#decision_soft').show();
+            } else {
+                $('#decision_soft').hide();
+            }
+        });
+
+
+        var cluster = $('#cluster_method').val();
+        if (cluster !== 'no') {
+            $('#download_clusterfile').show();
+        }
+        if (cluster === 'index') {
+            $('#index_length_div').show();
+        }
+
+        var rec = $('#reconstruct').val();
+        if (rec === 'yes') {
+            $('#rebuild_method_isshow').show();
+        }
+
+
+        init_showfilename('forclusterfile_filename', 'fileNameLabel_simulate');
+        init_showfilename('encode_outfile_filename', 'fileNameLabel_ref');
+        init_showfilename('filename2', 'fileNameLabel2');
+        init_showfilename('orifile_filename', 'fileNameLabel3');
+
+        var method = $('#method').val();
+        {#if (method === 'derrick' || method === 'PolarCode') {#}
+        if (method === 'fountain' || method === 'PolarCode' || method === 'YYC') {
+            $('#decision_soft').show();
+        } else {
+            $('#decision_soft').hide();
+        }
+
+        });

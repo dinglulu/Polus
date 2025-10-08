@@ -1,0 +1,227 @@
+{%  extends "layout.html" %}
+{% load static %}
+{%  block css %}
+    /* 布局 */
+    .doc-shell{
+    display:grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    align-items:start;
+    }
+
+    .doc-sidebar{
+    position: sticky;
+    top: 80px;             /* 视需要与顶部导航高度对齐 */
+    height: calc(100vh - 100px);
+    padding: 1rem 1rem;
+    border-right: 1px solid var(--border-color);
+    background: #fff;
+    overflow:auto;
+    border-radius: .5rem;
+    }
+
+    .doc-content{
+    min-width:0;
+    }
+
+    .doc-header{
+    margin-bottom: 1.5rem;
+    }
+    .doc-header h1{
+    font-size: 2rem;
+    margin: 0;
+    }
+    .doc-header .subtitle{
+    color: var(--text-light);
+    margin-top: .25rem;
+    }
+
+    /* 侧栏品牌与分组 */
+    .brand{
+    font-weight: 800;
+    letter-spacing: .5px;
+    margin-bottom: .5rem;
+    color: var(--primary-blue);
+    }
+
+    .nav-group{
+    margin: .75rem 0 1.25rem;
+    }
+    .nav-group-title{
+    font-size:.9rem;
+    color:#6c757d;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    margin:.25rem 0 .5rem;
+    }
+
+    /* 侧栏链接样式与激活高亮 */
+    .nav-link{
+    display:block;
+    padding:.45rem .6rem;
+    border-radius:.4rem;
+    color: var(--text-dark);
+    text-decoration:none;
+    transition: all .15s ease;
+    font-size: .98rem;
+    }
+    .nav-link:hover{
+    background: rgba(0,123,255,.08);
+    color: var(--primary-blue);
+    }
+    .nav-link.active{
+    background: rgba(0,123,255,.14);
+    color: var(--primary-blue);
+    box-shadow: inset 0 0 0 1px rgba(0,123,255,.25);
+    }
+
+    /* 文章分节 */
+    .doc-section{
+    scroll-margin-top: 100px; /* 避开顶部吸顶元素 */
+    padding: 1.25rem 1rem 0 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px dashed var(--border-color);
+    }
+    .doc-section:last-of-type{ border-bottom:none; }
+
+    /* 返回顶部按钮 */
+    .back-to-top{
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border:none;
+    background: var(--primary-blue);
+    color:#fff;
+    font-weight:700;
+    display:n
+{% endblock %}
+{% block content %}
+    <div class="doc-shell">
+        <!-- 侧边导航 -->
+        <aside class="doc-sidebar" id="docSidebar">
+            <div class="brand">Polus Docs</div>
+
+            <nav class="nav-sections" id="toc">
+                <div class="nav-group">
+                    <div class="nav-group-title">开始</div>
+                    <a class="nav-link" href="#intro">概览</a>
+                    <a class="nav-link" href="#system-arch">系统结构</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">编码</div>
+                    <a class="nav-link" href="#encode">Encode</a>
+                    <a class="nav-link" href="#simulation">In silico 渠道模拟</a>
+                    <a class="nav-link" href="#soft-decision">Soft-decision 解码</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">评估</div>
+                    <a class="nav-link" href="#evaluation">Evaluation 指标</a>
+                    <a class="nav-link" href="#reference">参考文献</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧正文 -->
+        <main class="doc-content">
+            <header class="doc-header">
+                <h1>聚焦模式</h1>
+                <p class="subtitle">局部放大目标区域，突出重点内容</p>
+            </header>
+
+            <section id="intro" class="doc-section">
+                <h2>Instruction</h2>
+                <p>这里放总体说明文案。</p>
+            </section>
+
+            <section id="system-arch" class="doc-section">
+                <h2>DNA STORAGE SYSTEM</h2>
+                <div class="text-center">
+                    <img style="width:60vw;max-width:100%;height:auto" src="{% static 'images/115.png' %}" alt="arch">
+                </div>
+            </section>
+
+            <section id="encode" class="doc-section">
+                <h2>ENCODE</h2>
+                <!-- 直接粘贴你现有的 ENCODE 文案（或精简版） -->
+                <!-- … -->
+            </section>
+
+            <section id="simulation" class="doc-section">
+                <h2>In silico DNA channel simulation</h2>
+                <!-- 你的模拟文案 -->
+                <!-- … -->
+            </section>
+
+            <section id="soft-decision" class="doc-section">
+                <h2>Soft-decision decoding implementation</h2>
+                <!-- 你的 Soft-decision 文案 -->
+                <!-- … -->
+            </section>
+
+            <section id="evaluation" class="doc-section">
+                <h2>Evaluation Module</h2>
+                <!-- 你的评估指标文案 -->
+                <!-- … -->
+            </section>
+
+            <section id="reference" class="doc-section">
+                <h2>Reference</h2>
+                <!-- 你的参考文献列表 -->
+                <!-- … -->
+            </section>
+
+            <!-- 底部返回顶部 -->
+            <button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+        </main>
+    </div>
+
+{% endblock %}
+{% block script %}
+    <script>
+        // 平滑滚动 & 侧栏激活状态
+        (function(){
+            const links = Array.from(document.querySelectorAll('#toc .nav-link'));
+            const sections = links
+                .map(a => document.querySelector(a.getAttribute('href')))
+                .filter(Boolean);
+
+            // 点击平滑滚动
+            links.forEach(a=>{
+                a.addEventListener('click', e=>{
+                    e.preventDefault();
+                    const target = document.querySelector(a.getAttribute('href'));
+                    if(!target) return;
+                    window.scrollTo({
+                        top: target.getBoundingClientRect().top + window.pageYOffset - 80,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // 滚动观察激活高亮
+            const io = new IntersectionObserver((entries)=>{
+                entries.forEach(entry=>{
+                    if(entry.isIntersecting){
+                        const id = '#' + entry.target.id;
+                        links.forEach(l => l.classList.toggle('active', l.getAttribute('href')===id));
+                    }
+                });
+            }, { rootMargin: '-40% 0px -50% 0px', threshold: [0, 1] });
+
+            sections.forEach(sec => io.observe(sec));
+
+            // 返回顶部按钮显示/隐藏
+            const toTop = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => {
+                toTop.style.display = window.scrollY > 400 ? 'block' : 'none';
+            });
+            toTop.addEventListener('click', ()=>{
+                window.scrollTo({ top:0, behavior:'smooth' });
+            });
+        })();
+    </script>
+{% endblock %}

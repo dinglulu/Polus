@@ -1,0 +1,576 @@
+{% extends "layout.html" %}
+{% load static %}
+
+
+{% block css %}
+
+    .container.my-5 {
+    max-width: 90vw;
+    width: 100%;
+    background-color: #fdfdfd; /* 或者 #f8f9fa，比纯白柔和 */
+    padding: 4rem 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease;
+    }
+
+    body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 2vh 2vw;
+    background: #f4f4f4;
+    }
+
+    h1 {
+    text-align: center;
+    margin-bottom: 4vh;
+    font-size: 2.5vw;
+    }
+
+    .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(42vw, 1fr));
+    gap: 2rem;
+
+    }
+    .chart-container {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s ease;
+    aspect-ratio: 4 / 3;
+    max-height: 80vh;       /* ✅ 限制最大高度 */
+    min-height: 100px;      /* ✅ 防止过小 */
+
+    display: flex;
+    flex-direction: column;
+    }
+
+
+    .chart-container:hover {
+    transform: translateY(-0.25rem);
+    }
+
+    .chart-title {
+    font-weight: bold;
+    font-size: 1.6rem;
+    margin-bottom: 1.3rem;
+    text-align: center;
+    color: #333;
+    }
+
+    .echart {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;  /* ✅ 必须是 100%，不能是固定 vh 或 px */
+    min-height: 280px;
+    }
+
+
+{% endblock %}
+
+{% block content %}
+    <div style="background-color: #f1f3f5; padding: 2rem 0;">
+        {#    <h1>DNA Codec Decode Time Dashboard</h1>#}
+
+        <div class="container my-5">
+            <h1 class="text-center" data-aos="fade-up" style="font-size: 3vw;font-family: Arial;color: #007bff!important;">
+                DNA Evaluate Module
+            </h1>
+            <!-- 上传 CSV 文件 -->
+            <div class="mb-5">
+                <h5 class="section-title mb-3">
+                    <i class="fa fa-chart-line"></i> CSV Upload
+                </h5>
+                <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                    <!-- 上传 CSV 文件表单 -->
+                    <form id="csvUploadForm" enctype="multipart/form-data" method="post" class="row g-3">
+                        {% csrf_token %}
+                        <div class="col-md-8">
+                            <label for="csv_files" class="form-label">Select CSV Files</label>
+                            <input type="file"
+                                   name="csv_files"
+                                   id="csv_files"
+                                   class="form-control"
+                                   accept=".csv"
+                                   multiple
+                                   required>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fa fa-upload me-1"></i> Generate Charts
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- 放在上传表单块的下面 -->
+            <div class="mb-4">
+                <h5 class="section-title mb-3">
+                    <i class="fa fa-eye"></i> Preview (first 30 rows)
+                </h5>
+
+                <div id="previewArea" class="p-3 border rounded" style="background:#fff;">
+                    <div class="text-muted">请选择 CSV 文件后，这里会显示预览。</div>
+                </div>
+            </div>
+
+
+            <div class="chart-grid">
+                <div class="chart-container"><div class="chart-title">Decoding Time/Speed Chart</div><div id="chart1" class="echart"></div></div>
+                <div class="chart-container"><div class="chart-title">Information Density Chart</div><div id="chart2" class="echart"></div></div>
+                <div class="chart-container"><div class="chart-title">Encoding Time/Speed Chart</div><div id="chart3" class="echart"></div></div>
+                <div class="chart-container"><div class="chart-title">File Recovery Chart</div><div id="chart4" class="echart"></div></div>
+                <div class="chart-container"><div class="chart-title">Sequencing Depth Requirement Chart</div><div id="chart5" class="echart"></div></div>
+                <!-- 建议把这几个卡片的标题改成更贴合： -->
+                <div class="chart-container"><div class="chart-title">Method Radar (File 1)</div><div id="chart6" class="echart"></div></div>
+                <div class="chart-container"><div class="chart-title">Method Radar (File 2)</div><div id="chart7" class="echart"></div></div>
+                <div class="chart-container"><div class="chart-title">Method Radar (File 3)</div><div id="chart8" class="echart"></div></div>
+                <div class="chart-container"><div class="chart-title">Method Radar (File 4)</div><div id="chart9" class="echart"></div></div>
+
+                <div class="chart-container"><div class="chart-title"> Time Chart</div><div id="chart9" class="echart"></div></div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    {#    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>#}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+    <script>
+        // 取 CSRF（更稳妥）
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        document.getElementById("csvUploadForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const files = document.getElementById("csv_files").files;
+            if (!files.length) { alert("请选择至少一个 CSV 文件"); return; }
+            for (const f of files) formData.append("csv_files", f);
+
+            fetch("{% url 'upload_csv' %}", {
+                method: "POST",
+                headers: { "X-CSRFToken": csrftoken },
+                body: formData,
+            })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.status === 'ok') {
+                        renderCharts(result.data, result.header || []);
+                    } else {
+                        alert("Upload failed: " + (result.msg || 'unknown'));
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+        });
+
+        function renderCharts(data, header) {
+            // 统一字段名：后端已保证这些键存在，缺失用 null
+            const filenames = [...new Set(data.map(row => row.filename))];
+            const methods   = [...new Set(data.map(row => row.method))];
+
+            function buildSeries(metric) {
+                return methods.map(method => ({
+                    name: method,
+                    type: 'line',
+                    smooth: true,
+                    connectNulls: true,
+                    data: filenames.map(filename => {
+                        const row = data.find(r => r.method === method && r.filename === filename);
+                        return row ? (row[metric] ?? null) : null;
+                    })
+                }));
+            }
+
+            const chartConfigs = [
+                { id: 'chart1', metric: 'decode_time', title: 'Decoding Time (s)' },
+                { id: 'chart2', metric: 'density',     title: 'Information Density' },
+                { id: 'chart3', metric: 'encode_time', title: 'Encoding Time (s)' },
+                { id: 'chart4', metric: 'bit_recovery',title: 'Bit Recovery Rate' },
+                { id: 'chart5', metric: 'copy_num',    title: 'Sequencing Depth' },
+            ];
+
+            chartConfigs.forEach(cfg => {
+                const el = document.getElementById(cfg.id);
+                if (!el) return;
+                const chart = echarts.init(el);
+                chart.setOption({
+                    title:   { text: cfg.title, left: 'center' },
+                    tooltip: { trigger: 'axis' },
+                    legend:  { data: methods, top: 30 },
+                    xAxis: {
+                        type: 'category',
+                        data: filenames,
+                        axisLabel: { interval: 0, rotate: 15 }
+                    },
+                    yAxis: { type: 'value', name: cfg.title },
+                    series: buildSeries(cfg.metric)
+                });
+                window.addEventListener('resize', () => chart.resize());
+            });
+        }
+    </script>
+
+    <script>
+        // 已有的 getCookie / csrftoken … 省略
+
+        // 监听选择文件，自动预览
+        document.getElementById("csv_files").addEventListener("change", () => {
+            const files = document.getElementById("csv_files").files || [];
+            renderCsvPreview(Array.from(files));
+            renderRadarCharts(result.data);
+        });
+        // 追加：雷达图渲染
+        function renderRadarCharts(data) {
+            // 指标顺序与字段映射（按需改名）
+            const metrics = [
+                { key: 'decode_time',  name: 'Decoding Time (s)', preferLow: true  },
+                { key: 'encode_time',  name: 'Encoding Time (s)', preferLow: true  },
+                { key: 'density',      name: 'Information Density', preferLow: false },
+                { key: 'bit_recovery', name: 'Bit Recovery Rate',   preferLow: false },
+                { key: 'copy_num',     name: 'Sequencing Depth',    preferLow: false },
+            ];
+
+            const filenames = [...new Set(data.map(r => r.filename))];
+            const methods   = [...new Set(data.map(r => r.method))];
+
+            // 计算每个指标的最大值（用于 radar.indicator.max）
+            const metricMax = {};
+            metrics.forEach(m => {
+                const vals = data
+                    .map(r => r[m.key])
+                    .filter(v => v !== null && v !== undefined && !isNaN(v));
+                let mx = 0;
+                if (vals.length) {
+                    mx = Math.max(...vals);
+                }
+                // 合理兜底：比最大值稍大，且给一些常识上限
+                if (m.key === 'bit_recovery') {
+                    metricMax[m.key] = Math.max(1, mx || 1); // 恢复率通常<=1
+                } else {
+                    metricMax[m.key] = mx > 0 ? mx * 1.1 : 1; // 没数据也给1
+                }
+            });
+
+            // 将 preferLow 的指标做一个“反向映射”，仅用于可视化可比性（把越小越好映射为越大越好）
+            function mapValueForRadar(key, raw) {
+                if (raw == null || isNaN(raw)) return 0;
+                const maxv = metricMax[key] || 1;
+                const meta = metrics.find(m => m.key === key);
+                if (!meta) return raw;
+                if (meta.preferLow) {
+                    // 简单转化：v' = max - v，保底>=0
+                    const v = Math.max(0, maxv - raw);
+                    return v;
+                }
+                return raw;
+            }
+
+            const containers = ['chart6','chart7','chart8','chart9'];
+            const used = Math.min(containers.length, filenames.length);
+
+            for (let i = 0; i < used; i++) {
+                const file = filenames[i];
+                const el = document.getElementById(containers[i]);
+                if (!el) continue;
+
+                const chart = echarts.init(el);
+
+                // 该文件下的各方法数据 -> series
+                const seriesData = methods.map(method => {
+                    const row = data.find(r => r.filename === file && r.method === method) || {};
+                    const values = metrics.map(m => mapValueForRadar(m.key, row[m.key]));
+                    return { name: method, value: values };
+                });
+
+                const indicator = metrics.map(m => ({
+                    name: m.name,
+                    max: metricMax[m.key] || 1
+                }));
+
+                chart.setOption({
+                    title: { text: `${file} — Method Comparison (Radar)`, left: 'center' },
+                    tooltip: { trigger: 'item' },
+                    legend: { data: methods, top: 28 },
+                    radar: {
+                        indicator,
+                        radius: '60%',
+                        axisName: { color: '#333' },
+                        splitNumber: 4
+                    },
+                    series: [{
+                        type: 'radar',
+                        data: seriesData,
+                        areaStyle: { opacity: 0.08 }
+                    }]
+                });
+
+                window.addEventListener('resize', () => chart.resize());
+            }
+        }
+
+        // 在上传成功后调用
+        // renderCharts(result.data, result.header || []);
+        // 加上这一句：
+        /* 在你已有的 then(result => { ... }) 中 */
+
+        // 预览渲染（前端解析，不上传）
+        function renderCsvPreview(files) {
+            const host = document.getElementById('previewArea');
+            host.innerHTML = ''; // 清空
+
+            if (!files.length) {
+                host.innerHTML = '<div class="text-muted">未选择文件。</div>';
+                return;
+            }
+
+            // 容器：tab + content（多文件时更清晰）
+            const tabId = 'csvPreviewTabs_' + Date.now();
+            const nav = document.createElement('ul');
+            nav.className = 'nav nav-tabs';
+            nav.id = tabId;
+
+            const pane = document.createElement('div');
+            pane.className = 'tab-content border border-top-0 p-3';
+
+            files.forEach((file, idx) => {
+                const tabLinkId = `${tabId}_link_${idx}`;
+                const paneId = `${tabId}_pane_${idx}`;
+
+                // tab header
+                const li = document.createElement('li');
+                li.className = 'nav-item';
+                li.innerHTML = `
+        <a class="nav-link ${idx===0?'active':''}" id="${tabLinkId}" data-bs-toggle="tab" href="#${paneId}" role="tab">
+          ${file.name}
+        </a>`;
+                nav.appendChild(li);
+
+                // content pane
+                const div = document.createElement('div');
+                div.className = `tab-pane fade ${idx===0?'show active':''}`;
+                div.id = paneId;
+                div.role = 'tabpanel';
+                div.innerHTML = `<div class="text-muted">Parsing ${file.name} ...</div>`;
+                pane.appendChild(div);
+
+                // 解析 CSV（只取前 30 行，带表头）
+                Papa.parse(file, {
+                    header: true,
+                    preview: 30,
+                    skipEmptyLines: 'greedy',
+                    complete: (res) => {
+                        const fields = res.meta.fields || [];
+                        const rows = res.data || [];
+
+                        if (!fields.length) {
+                            div.innerHTML = `<div class="text-danger">未检测到表头或文件为空。</div>`;
+                            return;
+                        }
+
+                        // 生成表格
+                        const table = document.createElement('table');
+                        table.className = 'table table-sm table-striped table-hover';
+
+                        // thead
+                        const thead = document.createElement('thead');
+                        thead.innerHTML = `<tr>${fields.map(h=>`<th>${escapeHtml(h)}</th>`).join('')}</tr>`;
+                        table.appendChild(thead);
+
+                        // tbody
+                        const tbody = document.createElement('tbody');
+                        rows.forEach(r => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = fields.map(h => `<td>${escapeHtml(r[h])}</td>`).join('');
+                            tbody.appendChild(tr);
+                        });
+                        table.appendChild(tbody);
+
+                        // info
+                        const info = document.createElement('div');
+                        info.className = 'small text-muted mb-2';
+                        info.textContent = `显示前 ${rows.length} 行；总列数：${fields.length}`;
+
+                        div.innerHTML = '';
+                        div.appendChild(info);
+                        div.appendChild(table);
+                    },
+                    error: (err) => {
+                        div.innerHTML = `<div class="text-danger">解析失败：${err?.message || err}</div>`;
+                    }
+                });
+            });
+
+            host.appendChild(nav);
+            host.appendChild(pane);
+        }
+
+        // 小工具：HTML 转义，防止表格乱掉
+        function escapeHtml(v) {
+            if (v === null || v === undefined) return '';
+            return String(v)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;')
+                .replace(/'/g,'&#039;');
+        }
+
+        // 你现有的提交逻辑（保持不变）
+        document.getElementById("csvUploadForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+
+            const formData = new FormData();
+            const files = document.getElementById("csv_files").files;
+            if (!files.length) { alert("请选择至少一个 CSV 文件"); return; }
+            for (const f of files) formData.append("csv_files", f);
+
+            fetch("{% url 'upload_csv' %}", {
+                method: "POST",
+                headers: { "X-CSRFToken": csrftoken },
+                body: formData,
+            })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.status === 'ok') {
+                        renderCharts(result.data, result.header || []);
+                        renderRadarCharts(result.data);   // ✅ 这里加上雷达图渲染
+                    } else {
+                        alert("Upload failed: " + (result.msg || 'unknown'));
+                    }
+
+                })
+                .catch(err => console.error('Error:', err));
+        });
+    </script>
+
+
+
+{% endblock %}
+
+
+
+NUMERIC_KEYS = {
+    'decode_time', 'density', 'encode_time',
+    'bit_recovery', 'copy_num'
+}
+
+CANON_KEYS_MAP = {
+    # 兼容多种表头写法（可按需扩展）
+    'filename': {'filename', 'file', 'name'},
+    'method':   {'method', 'codec', 'algorithm'},
+    'decode_time': {'decode_time','decoding_time','decode(s)','decoding(s)'},
+    'encode_time': {'encode_time','encoding_time','encode(s)','encoding(s)'},
+    'density': {'density','info_density','information_density'},
+    'bit_recovery': {'bit_recovery','bit_recovery_rate','ber_inv','bits_recov'},
+    'copy_num': {'copy_num','depth','sequencing_depth'}
+}
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+def _canon_key(k: str):
+    lk = (k or '').strip().lower()
+    for canon, aliases in CANON_KEYS_MAP.items():
+        if lk in aliases:
+            return canon
+    return lk  # 保留原名，便于 header 回传
+
+def _to_number(val):
+    if val is None: return None
+    s = str(val).strip()
+    if s == '' or s.lower() in {'na','none','null'}: return None
+    try:
+        if '.' in s or 'e' in s.lower():
+            return float(s)
+        return int(s)
+    except Exception:
+        # 可能是 "12s"、"0.995%" 之类，尝试剥离单位
+        s2 = s.replace('%','').replace('s','').strip()
+        try:
+            x = float(s2)
+            if '%' in s:  # 百分比转小数
+                return x / 100.0
+            return x
+        except Exception:
+            return None
+
+@require_POST
+@csrf_protect
+def upload_csv(request):
+    """
+    接收多个 CSV（表头行必需），合并为 records：
+    每行至少包含：filename, method；其它字段缺失填 None
+    """
+    files = request.FILES.getlist('csv_files')
+    if not files:
+        return JsonResponse({'status':'err','msg':'No files received'}, status=400)
+
+    records = []
+    seen_headers = set()
+    canonical_headers = set()
+
+    for f in files:
+        try:
+            # 读取文本（自动按 UTF-8 / gb 失败回退）
+            raw = f.read()
+            try:
+                text = raw.decode('utf-8')
+            except UnicodeDecodeError:
+                text = raw.decode('gbk', errors='ignore')
+
+            reader = csv.DictReader(io.StringIO(text))
+            # 规范化表头
+            norm_fieldnames = [_canon_key(h) for h in (reader.fieldnames or [])]
+            header_map = dict(zip(reader.fieldnames or [], norm_fieldnames))
+            seen_headers.update(norm_fieldnames)
+
+            for row in reader:
+                norm = {}
+                # 先把所有列规范化
+                for orig_k, v in row.items():
+                    ck = header_map.get(orig_k, orig_k)
+                    norm[ck] = v
+
+                # 兜底列：filename、method
+                # 如果没有 filename，就用上传文件名（去后缀也行，这里保留原名）
+                if 'filename' not in norm or not str(norm.get('filename') or '').strip():
+                    norm['filename'] = f.name
+
+                if 'method' not in norm or not str(norm.get('method') or '').strip():
+                    # 没有 method 的话，也给个占位，避免前端崩
+                    norm['method'] = 'unknown'
+
+                # 数值列转型
+                for k in list(norm.keys()):
+                    if k in NUMERIC_KEYS:
+                        norm[k] = _to_number(norm[k])
+
+                # 确保所有预期键存在（缺失填 None）
+                for k in ['filename','method','decode_time','density','encode_time','bit_recovery','copy_num']:
+                    norm.setdefault(k, None)
+
+                records.append(norm)
+
+        except Exception as e:
+            return JsonResponse({'status':'err','msg': f'Failed to parse {f.name}: {e}'}, status=400)
+
+    # header 回传：把 seen 的规范字段往前放，保持你前端习惯
+    canonical_headers = ['filename','method','decode_time','density','encode_time','bit_recovery','copy_num']
+    other_headers = [h for h in seen_headers if h not in canonical_headers]
+    header = canonical_headers + other_headers
+
+    return JsonResponse({'status':'ok','data':records,'header':header}, json_dumps_params={'ensure_ascii':False})

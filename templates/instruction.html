@@ -1,0 +1,976 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block css %}
+    .step-img {
+    margin-top: .5rem;
+    }
+    .step-img img {
+    {#    max-width: 40vw;#}
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+    }
+
+    body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    color: #445566;
+    line-height: 1.6;
+    }
+
+    .doc-shell {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+    max-width: 100vw;
+    margin: 0 auto;
+    padding: 20px;
+    }
+
+    /* 左侧导航 */
+    /* 左侧导航整体 */
+    .doc-sidebar {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    padding: 1rem;
+    border-right: 1px solid #e0e6ed;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: #fafbfc;
+    border-radius: 8px;
+    }
+
+    /* 分组标题 */
+    .nav-group {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #e5e7eb; /* 每组底部分隔线 */
+    }
+
+    .nav-group-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    }
+
+    /* 导航链接 */
+    .nav-link {
+    display: block;
+    padding: 0.55rem 0.9rem;
+    border-radius: 6px;
+    color: #222;               /* 黑色文字 */
+    font-size: 1.0rem;        /* 字体大一点 */
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-bottom: 0.3rem;
+    }
+
+    /* hover 状态 */
+    .nav-link:hover {
+    background: #f0f4fa;
+    color: #0d6efd;
+    }
+
+    /* 当前激活状态 */
+    .nav-link.active {
+    background: #e6f0ff;
+    color: #0d6efd;
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(0,123,255,.3);
+    }
+
+
+    /* 右侧正文 */
+    .doc-content main {
+    max-width: 80vw;
+    margin: 0 auto;
+    }
+
+    h1 {
+    font-weight: 600;
+    color: #334d66;
+    font-size: 2vw;
+    margin-bottom: 0.4vw;
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+    }
+
+    h1 .icon {
+    font-size: 1.8vw;
+    color: #5877a2;
+    }
+
+    h2 {
+    font-weight: 600;
+    color: #54719e;
+    margin-top: 2vw;
+    margin-bottom: 0.8vw;
+    border-bottom: 0.2vw solid #aac7e3;
+    padding-bottom: 0.4vw;
+    font-size: 1.5vw;
+    scroll-margin-top: 100px;
+    }
+
+    p, li {
+    font-size: 1vw;
+    margin-bottom: 0.8vw;
+    }
+
+    a {
+    color: #4078c0;
+    text-decoration: underline;
+    }
+
+    a:hover {
+    color: #2c4a82;
+    }
+
+    em {
+    color: #666;
+    font-size: 13px;
+    }
+
+    /* 返回顶部按钮 */
+    .back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #3366cc;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .2);
+    }
+
+    .back-to-top:hover {
+    background: #274b99;
+    }
+
+    @media (max-width: 992px) {
+    .doc-shell {
+    grid-template-columns: 1fr;
+    }
+    .doc-sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    }
+    }
+    .doc-sidebar a.nav-link {
+    color: #111 !important;
+    }
+    .doc-sidebar a.nav-link:hover {
+    color: #0d6efd !important;
+    }
+    .doc-sidebar a.nav-link.active {
+    background: #e6f0ff;
+    color: #0b5ed7 !important;
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px rgba(13,110,253,.35);
+    }
+    /* 让滚动到 section 时，顶部预留出侧边/顶部占位 */
+    .doc-section { scroll-margin-top: 120px; }
+
+{% endblock %}
+
+{% block content %}
+    <div class="doc-shell">
+    <!-- Left sidebar navigation -->
+    <aside class="doc-sidebar">
+
+        <div class="nav-group">
+            <div class="nav-group-title">Basics</div>
+            <a href="#dna-system" class="nav-link">DNA Storage System</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Workflow</div>
+            <a href="#encode" class="nav-link">Encode</a>
+            <a href="#simulation" class="nav-link">In silico Simulation</a>
+            <a href="#soft-decision" class="nav-link">Soft-decision Decoding</a>
+            <a href="#evaluation" class="nav-link">Evaluation</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Appendix</div>
+            <a href="#reference" class="nav-link">Reference</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Usage Demo</div>
+            <a href="#demo-encode" class="nav-link">Encode</a>
+            <a href="#demo-simulate" class="nav-link">Simulate</a>
+            <a href="#demo-decode" class="nav-link">Decode</a>
+            <a href="#demo-evaluate" class="nav-link">Evaluate</a>
+        </div>
+    </aside>
+
+    <!-- Right content -->
+    <div class="doc-content">
+    <main>
+    <h1><span class="icon">ℹ️</span> Instruction</h1>
+
+    <section id="dna-system" class="doc-section">
+        <h2>DNA STORAGE SYSTEM</h2>
+        <div class="text-center">
+            <img style="width: 60vw;height: auto" src="{% static 'images/115.png'%}">
+        </div>
+    </section>
+
+    <section id="encode" class="doc-section">
+        <h2>ENCODE</h2>
+        <p><strong>Encoding module</strong></p>
+        <p>Polus exposes a common API around multiple DNA encoding/decoding schemes (“codecs”).
+            As a demo, we first integrated three representative codecs—<strong>DNA Fountain</strong>,
+            <strong>Yin–Yang (YYC)</strong>, and <strong>Derrick</strong>—by re-implementing each per its
+            published specification and then wrapped with a common Polus API for seamless switching.
+            All encoders start from an input file and produce a collection of DNA oligonucleotide sequences with
+            addressing and redundancy.</p>
+
+        <p><strong>DNA Fountain (outer LT code with inner RS).</strong>
+            We followed Erlich & Zielinski’s architecture,
+            in which each droplet carries a short inner <strong>Reed–Solomon (RS)</strong> check and the outer
+            <strong>Luby-Transform (LT)</strong> fountain code resolves erasures at the fragment level.
+            In the canonical configuration, each droplet comprises
+            <strong>4 bytes</strong> seed + <strong>32 bytes</strong> payload + <strong>2 bytes</strong> RS parity
+            (total <strong>38 bytes</strong>), and decoding admits only RS-validated droplets into the LT peeling solver.
+            Logical redundancy is set by the droplet budget; in practice we target low single-digit overhead,
+            and our runs used ≈<strong>5–8%</strong>—in line with the ~<strong>7%</strong> overhead reported in the original work—
+            by adjusting the number of generated droplets (seed schedule) at fixed constraints
+            (GC contents, homopolymer lengths).</p>
+
+        <p><strong>Yin–Yang codec.</strong>
+            YYC uses two complementary mapping rules (“yin” and “yang”) to encode
+            <strong>2 bits</strong> per nucleotide, satisfying biochemical constraints (GC, homopolymers, secondary structure).
+            We implemented YYC per the Ping et al.’s description and appended an outer
+            <strong>RS(255,223)</strong> over GF(<strong>2^8</strong>) to the emitted strands (≈<strong>12.5%</strong> parity),
+            leaving the YYC transcoding itself unchanged.</p>
+
+        <p><strong>Derrick.</strong>
+            Derrick introduces soft-decision decoding for DNA storage by predicting error
+            locations/likelihoods and feeding them to RS decoders as erasures.
+            We adopted the published pipeline—consensus, confidence estimation, and erasure-aware RS—
+            and used <strong>RS(255,k)</strong> families matched to our comparison settings
+            (default <strong>RS(255,223)</strong> unless otherwise noted)
+            so that YYC and Derrick carry comparable outer-code overheads.</p>
+
+        <p><strong>Constraint screening and outputs.</strong>
+            After encoding, Polus applies the same constraint filters across codecs
+            (GC window and homopolymer limit) before emitting FASTA/FASTQ.
+            The platform then compiles an encoding report with:
+            (<strong>i</strong>) logical density (<strong>bits nt⁻¹</strong>, counting all synthesized nt),
+            (<strong>ii</strong>) encoding efficiency (speed and computational time taken)
+            and (<strong>iii</strong>) sequence-property distributions (GC content and homopolymers run-length).
+            These reports ensure that differences observed downstream
+            (e.g., coverage required for full recovery) can be traced to codec design.</p>
+
+        <p><strong>Implementation notes.</strong>
+            (<strong>i</strong>) Our DNA Fountain implementation uses the published droplet
+            format (<strong>4 B</strong> seed, <strong>32 B</strong> payload, <strong>2 B</strong> RS) and standard LT peeling;
+            redundancy is controlled by droplet count.
+            (<strong>ii</strong>) YYC transcoding follows the published dual-rule mapping;
+            the outer RS layer is our evaluation choice to equalize FEC budgets across codecs.
+            (<strong>iii</strong>) Derrick’s soft-decision RS matches the NSR reference.</p>
+    </section >
+
+    <section id="simulation" class="doc-section">
+        <h2>In silico DNA channel simulation</h2>
+        <p>Here we implemented a multi-stage <em>in silico</em> simulation pipeline that mimics the DNA storage channel:
+            from synthesis through storage/aging, PCR amplification, and sequencing.
+            This simulation is critical for benchmarking because fully experimental tests are time-consuming and expensive.
+            <strong>Polus’s simulator</strong> is modular, allowing different error models or parameters to be plugged in for each stage:</p>
+
+        <p><strong>Synthesis errors:</strong>
+            We modeled oligo synthesis using a stochastic simulator (<strong>dt4dds</strong>) that introduces
+            context-dependent substitution, insertion, and deletion errors during oligo writing.
+            <em>Modify the included parameters as needed.</em></p>
+
+        <p><strong>Storage and decay:</strong>
+            After synthesis, oligos may be stored for varying periods or conditions.
+            Our simulator can optionally model DNA decay, including random strand breaks and base damage
+            (e.g., <strong>C→T</strong> deamination).
+            For accelerated aging tests, we increased these damage rates to mimic <strong>years or decades</strong> of storage.</p>
+
+        <p><strong>PCR amplification:</strong>
+            Prior to sequencing, DNA oligos are typically PCR amplified to create a sequencing library.
+            PCR can introduce <em>bias</em> – certain sequences amplify more or less efficiently – and <em>errors</em> –
+            polymerase errors can introduce substitutions
+            (at rates ~<strong>10⁻⁵–10⁻⁶</strong> per base per cycle for high-fidelity enzymes) or indels (much rarer).
+            We included a simplified PCR model where each oligo is randomly assigned a <strong>coverage multiplier</strong>
+            (some oligos end up overrepresented, others underrepresented in the sequencing input),
+            with a <strong>dispersion factor</strong> reflecting empirically observed PCR bias.</p>
+
+        <p><strong>Sequencing errors:</strong>
+            Polus supports different sequencing models.
+            For <strong>Illumina (short-read)</strong> sequencing, we used <strong>dt4dds</strong> in a sequencing mode
+            to introduce predominantly substitution errors at a target rate
+            (e.g., <strong>0.1%</strong> per base) and small indel errors.
+            For <strong>Oxford Nanopore (long-read)</strong> sequencing, we leveraged the read simulator
+            <strong>Badread</strong> to generate long reads with typical Nanopore error characteristics
+            (~<strong>5–10%</strong> errors, with an <strong>indel:substitution ratio ≈3:1</strong>).</p>
+
+        <p>The output of the simulator is a set of sequencing read files
+            (<strong>FASTQ</strong> format with quality scores) for each simulated sequencing run.</p>
+    </section >
+    <section id="soft-decision" class="doc-section">
+        <h2>Soft-decision decoding implementation</h2>
+        <p><strong>Polus’s soft-decision decoding module</strong> was implemented for each codec as follows.
+            After <strong>SeqFormer</strong> produces a consensus sequence and an error probability for each base of an oligo,
+            we translated this into inputs for the codec’s decoder:</p>
+
+        <p><strong>RS codes</strong>
+            (used in the Yin–Yang outer layer, in DNA Fountain inner layer and in Derrick alone):
+            We set a <strong>threshold</strong> (e.g., <strong>0.3</strong>) for “high error probability.”
+            Any base with an error likelihood above this threshold was treated as an <strong>erasure</strong>
+            in the RS decoding step.
+            The RS decoder was modified to accept erasures in its decoding algorithm.
+            If the number of <strong>erasures + ½ × errors</strong> was within the code’s capability
+            (e.g., <strong>RS(255,223)</strong> can correct up to <strong>16</strong> errors or <strong>32</strong> erasures),
+            decoding succeeded.
+            By tuning the threshold, we ensured that we only mark truly ambiguous bases as erasures to avoid
+            unnecessary erasures (which could reduce the code’s parity budget).
+            In practice, we found a clear separation: SeqFormer’s confidence scores tend to be
+            very high (> <strong>0.99</strong>) for correct bases and low (< <strong>0.5</strong>) for the few error positions,
+            so setting approx. <strong>0.6</strong> worked well
+            (nearly all actual error positions were marked, with few false marks).</p>
+
+        <p><strong>DNA Fountain.</strong>
+            SeqFormer supplies position-wise base probabilities that we aggregate to <strong>byte-level reliabilities</strong>
+            for each droplet.
+            From these, we mark <strong>low-confidence</strong> byte positions as erasures
+            and run an <strong>erasure-aware RS decoder</strong> on the droplet.
+            Only droplets whose RS soft-decoding succeeds
+            (i.e., passes syndrome check after correcting errors/erasures)
+            are admitted to the outer <strong>Fountain decoder</strong>;
+            droplets that fail RS are discarded rather than injected into LT equations.
+            The <strong>LT decoder</strong> then performs iterative belief-propagation solving for source fragments.
+            By <em>filtering and rescuing</em> droplets at the RS layer (via soft erasures) rather than hard-rejecting them,
+            the Fountain stage receives more usable droplets at a given sequencing coverage,
+            which increases the probability of completing the system of equations at the same logical overhead.</p>
+
+        <p><strong>Yin–Yang codec.</strong>
+            We applied SeqFormer to each strand pair separately.
+            For each scheme, the decoded file was verified using a <strong>checksum or hash</strong>.
+            Polus implements an automatic <strong>CRC32</strong> verification of the reconstructed data.
+            The inner Yin–Yang mapping itself is a <strong>deterministic transcoding</strong>,
+            so no probabilistic step there,
+            but we again used an outer <strong>RS(255,223)</strong> across the data blocks.
+            As with the RS codes case, we marked <strong>high-likelihood error positions</strong> as erasures
+            before RS decoding.</p>
+    </section >
+    <section id="evaluation" class="doc-section">
+        <h2>Evaluation Module</h2>
+        <p>Polus evaluates DNA data storage performance across multiple dimensions to capture both
+            <strong>information-theoretic</strong> and <strong>biochemical</strong> aspects:</p>
+
+        <ol>
+            <li><strong>Data File Recovery:</strong>
+                <p>This category includes:</p>
+                <ul>
+                    <li><strong>Bit Error Rate (BER)</strong> – the fraction of bits that are incorrect in the final reconstructed file
+                        (after decoding) relative to the original input.</li>
+                    <li><strong>Strand (or Block) Recovery Rate</strong> – the percentage of oligo strands (or codeword blocks)
+                        that are decoded without any errors.</li>
+                </ul>
+                <p>A <strong>0% BER</strong> and <strong>100% strand recovery rate</strong> means the file was perfectly reconstructed.
+                    These metrics directly measure decoder success.</p>
+            </li>
+
+            <li><strong>Logical Density:</strong>
+                <p>The number of <strong>information bits per nucleotide synthesized</strong>.
+                    Let <strong>B<sub>info</sub></strong> be the total information bits in the input file(s), and
+                    <strong>N<sub>syn</sub></strong> be the total number of synthesized nucleotides
+                    (sum over all oligos, including addressing and ECC).
+                    The logical density is given by:</p>
+
+                <p style="text-align:center; font-weight:bold; font-size:1.2vw;">
+                    D<sub>logical</sub> = B<sub>info</sub> / N<sub>syn</sub> &nbsp; (bits/nt)
+                </p>
+            </li>
+
+            <li><strong>Physical Density:</strong>
+                <p>The amount of data stored per unit mass of DNA, typically in <strong>bytes per gram</strong>.</p>
+                <p>Under the ideal dry-DNA assumption, the number of nucleotides per gram is:</p>
+
+                <p style="text-align:center; font-weight:bold; font-size:1.2vw;">
+                    N<sub>nt/g</sub> = (N<sub>A</sub> / M<sub>nt</sub>)
+                </p>
+
+                <p>Where <strong>N<sub>A</sub></strong> is the <em>Avogadro constant</em> and
+                    <strong>M<sub>nt</sub></strong> is the <em>average molar mass per nucleotide</em> of ssDNA
+                    (≈<strong>330 g/mol</strong> for a single nucleotide).
+                    Thus, the <strong>ideal physical density</strong> is:</p>
+
+                <p style="text-align:center; font-weight:bold; font-size:1.2vw;">
+                    D<sub>phys,ideal</sub> = (B<sub>info</sub> / N<sub>syn</sub>) × (N<sub>A</sub> / M<sub>nt</sub>)
+                </p>
+
+                <p>Then for <strong>actual physical density</strong>,
+                    reliable readout requires multiple copy numbers per oligo, denoted as <strong>C<sub>min</sub></strong>.
+                    We take this as the minimal average coverage yielding error-free recovery
+                    (from our <em>in silico</em> experiments).
+                    Under assumptions similar to Church et al. (2012) – e.g.,
+                    ~<strong>100 molecules/oligo</strong>,
+                    no synthesis or long-term loss (effective yield ≈1) –
+                    the actual density reduces to:</p>
+
+                <p style="text-align:center; font-weight:bold; font-size:1.2vw;">
+                    D<sub>phys,actual</sub> = D<sub>phys,ideal</sub> / C<sub>min</sub>
+                </p>
+            </li>
+
+            <li><strong>Sequencing Depth Requirement:</strong>
+                <p>The <strong>minimum average sequencing coverage per oligo</strong> required to consistently
+                    recover the data without errors.
+                    We determine this by running simulations with <strong>decreasing read depths</strong> until decoding fails.</p>
+            </li>
+
+            <li><strong>Encoding Speed:</strong>
+                <p>The throughput of the encoding process per second.
+                    We measured <strong>wall-clock times</strong> of our encoder implementations on a <strong>XXX CPU</strong>
+                    to compare their efficiency.</p>
+            </li>
+
+            <li><strong>Decoding Speed:</strong>
+                <p>The throughput of the decoding process per second.
+                    We measured <strong>wall-clock times</strong> for decoding on the same hardware.
+                    For Polus, we <strong>separately recorded</strong> the time for clustering, SeqFormer inference,
+                    and error-correction decoding.</p>
+            </li>
+
+            <li><strong>Cost per MB:</strong>
+                <p>An estimate of the monetary cost to store and retrieve 1 MB of data using each scheme, factoring in:</p>
+                <ul>
+                    <li>DNA <strong>synthesis cost</strong> per base (≈<strong>$0.10</strong>)</li>
+                    <li>DNA <strong>sequencing cost</strong> per read/coverage
+                        (≈<strong>$1000</strong> per ~1B Illumina reads,
+                        ≈<strong>$30</strong>/Gb for Nanopore MinION)</li>
+                </ul>
+            </li>
+
+            <li><strong>GC Content:</strong>
+                <p>The average (and distribution of) <strong>GC fraction</strong> in the encoded oligos.
+                    All our schemes enforce roughly <strong>45–55%</strong> GC,
+                    but this is reported to ensure none produce extreme GC outliers that may hinder PCR or sequencing.</p>
+            </li>
+
+            <li><strong>Max Homopolymer Length:</strong>
+                <p>The longest run of identical nucleotides in any encoded oligo.
+                    This reflects adherence to biochemical constraints,
+                    since homopolymers longer than ~<strong>5 bases</strong> can increase sequencing error rates.</p>
+            </li>
+        </ol>
+    </section>
+
+    <section id="reference" class="doc-section">
+        <h2>Reference</h2>
+        <ol>
+            <li>
+                <a href="https://www.science.org/doi/abs/10.1126/science.aaj2038" target="_blank">
+                    Erlich, Y. & Zielinski, D. DNA Fountain enables a robust and efficient storage architecture.
+                    <em>Science</em>. <strong>2017; 355(6328):950-954</strong>.
+                </a>
+            </li>
+             <li>
+            <a href="https://www.nature.com/articles/s43588-022-00231-2" target="_blank">
+                Ping, Z., Chen, S., Zhou, G., Huang, X., Zhu, S., Zhang, H., Lee, H., Lan, Z., Cui, J., Chen, T.,
+                Zhang, W., Yang, H., Xu, X., Church, G., Shen, Y. Towards practical and robust DNA-based data archiving
+                using the Yin–Yang Codec system. <em>Nature Computational Science</em>. <strong>2022; 2:234-242</strong>.
+            </a>
+        </li>
+             <li>
+            <a href="https://academic.oup.com/nsr/article/11/2/nwad229/7259182" target="_blank">
+                Ding, L., Wu, S., Hou, Z., Li, A., Xu, Y., Feng, H., Pan, W., & Ruan, J.
+                Improving error-correcting capability in DNA digital storage via soft-decision decoding (Derrick).
+                <em>National Science Review</em>. <strong>2024; 11(2):nwad229</strong>.
+            </a>
+        </li>
+            <li>
+            <a href="https://www.pnas.org/doi/10.1073/pnas.2004821117" target="_blank">
+                Press, W. H., Hawkins, J. A., Jones, S. K., Schaub, J. M., & Finkelstein, I. J. HEDGES error-correcting code for DNA storage
+                corrects indels and allows sequence constraints. <em>Proceedings of the National Academy of Sciences</em>.
+                <strong>2020; 117(31):18489-18496</strong>.
+            </a>
+        </li>
+        </ol>
+        <p><em>Note: for the algorithms implemented in this tool (Fountain, Yin–Yang Codec, Derrick, HEDGES), please refer to the above references for details and statements of competing interests.</em></p>
+    </section>
+
+
+    <section id="demo-encode" class="doc-section">
+        <h2>Demo · Encode</h2>
+        <!-- Usage · Encode -->
+        <div class="card shadow-sm mb-4" id="encode-usage">
+            <div class="card-body">
+                <h5 class="mb-2">
+                    <i class="fa fa-book-open me-1"></i> Usage · Encode
+                </h5>
+                <ol class="numbered-steps mb-3">
+                    <li>
+                        <strong>Select file (Input)</strong>: Click <em>Select file</em> to choose the source file to encode (text/image/video, etc.). A preview appears at the right (image/video/text first 30 lines).
+                        <div class="step-img"><img src="{% static 'images/encode_step1.png' %}" alt="Step1" /></div>
+                    </li>
+
+                    <li>
+                        <strong>Select algorithm (Encode Method → Algorithm)</strong>: Choose from <em>DNA Fountain / Yin–Yang Codec / Derrick / PolarCode / Hedges</em>.
+                        <div class="step-img"><img src="{% static 'images/encode_step2.png' %}" alt="Step2" /></div>
+                    </li>
+
+                    <li>
+                        <strong>Fill in parameters (Algorithm Parameters)</strong>: The page will show the parameter block for the selected algorithm (only parameters relevant to this algorithm appear). Adjust as needed.
+                        <div class="step-img"><img src="{% static 'images/encode_step3.png' %}" alt="Step3" /></div>
+                    </li>
+
+                    <li>
+                        <strong>Start encoding</strong>: Click <em>Encode File</em>... A modal will pop up asking you to confirm the chosen settings. Verify and click <em>Confirm and Submit</em>.
+                        <div class="step-img" style="width: 50%"><img src="{% static 'images/encode_step4.png' %}" alt="Step4" /></div>
+                    </li>
+                    <li>
+                        <strong>View results (Output)</strong>: After encoding, a result panel appears (method, total bits/bases, time, number of sequences, information density, max homopolymer length, etc.). Click <em>download</em> to download the encoded FASTA.
+                        <div class="step-img"><img src="{% static 'images/encode_step5.png' %}" alt="Step4" /></div>
+
+                    </li>
+                    <li>
+                        <strong>Re-encode</strong>: Click <em>Re-encode</em> (right-side button) to reset the page, then change parameters or file and encode again.
+                        <div class="step-img"><img src="{% static 'images/encode_step5.png' %}" alt="Step4" /></div>
+
+                    </li>
+                </ol>
+
+                <div class="alert alert-warning mt-3" style="font-size: 0.95rem; border: 1px solid #f0ad4e; border-radius: 0.5rem;">
+                    <i class="fa fa-info-circle"></i>
+                    <strong class="ms-1">Tips:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Avoid very large files to keep the subsequent simulate step manageable.</li>
+                        <li>For DNA Fountain on small files, consider a larger redundancy.</li>
+                        <li>When encoding starts, a confirmation modal (showing file name and parameters) appears. Click <em>Confirm and Submit</em> to begin; the progress bar starts at 0%.</li>
+                        <li>To retest with new parameters, use the <em>Re-encode</em> button on the right to reset.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </section >
+    <section id="demo-simulate" class="doc-section">
+        <h2>Demo · Simulate</h2>
+        <!-- Usage · Simulate -->
+        <div class="card shadow-sm mb-4" id="simulate-usage">
+            <div class="card-body">
+                <h5 class="mb-2">
+                    <i class="fa fa-book-open me-1"></i> Usage · Simulate
+                </h5>
+
+                <ol class="numbered-steps mb-3">
+                    <li>
+                        <strong>Choose pipeline steps (Simulation Steps)</strong>: Check the stages to simulate (Synthesis is always on; optional Decay / PCR / Sampling / Sequencing), then click <em>OK</em>.
+                        <div class="step-img"><img src="{% static 'images/simulate_step1.png' %}" alt="Step1: Choose steps"></div>
+                    </li>
+
+                    <li>
+                        <strong>Select input file (Input)</strong>: By default, use the FASTA/FA file from the previous Encode step; you can also select a new file (preview shows the first 100 lines).
+                        <div class="step-img"><img src="{% static 'images/simulate_step2.png' %}" alt="Step2: Select input"></div>
+                    </li>
+
+                    <li>
+                        <strong>Configure parameters for each module</strong>: The page shows parameter blocks for selected steps:
+                        <ul>
+                            <li><em>Synthesis</em>: Per oligo scale, Multiple of sample</li>
+                            <li><em>Decay</em>: Years, Decay ratio, Temperature, Humidity</li>
+                            <li><em>PCR</em>: PCR cycles, PCR probability</li>
+                            <li><em>Sampling</em>: Sampling ratio</li>
+                            <li><em>Sequencing</em>: Sequencing method, Sequencing depth</li>
+                        </ul>
+                        <div class="step-img"><img src="{% static 'images/simulate_step3.png' %}" alt="Step3: Configure parameters"></div>
+                    </li>
+
+                    <li>
+                        <strong>Start simulation</strong>: Click <em>start simulate</em> (a confirmation modal appears). Verify <em>File Info / Steps / Parameters</em> and click <em>Confirm & Submit</em> to start the progress bar.
+                        <div class="step-img"><img src="{% static 'images/simulate_step4.png' %}" style="width: 50%" alt="Step4: Start"></div>
+                    </li>
+
+                    <li>
+                        <strong>View & download results</strong>: After completion, see elapsed time in the <em>result</em> card and click <em>download</em> to get the generated sequencing files/results.
+                        <div class="step-img"><img src="{% static 'images/simulate_step5.png' %}" alt="Step5: Results"></div>
+                    </li>
+
+                    <li>
+                        <strong>Re-simulate</strong>: Click <em>Re-simulate</em> to reset and run with different steps or parameters.
+
+                    </li>
+                </ol>
+
+                {#                <details class="mb-3">#}
+                {#                    <summary><strong>Parameter notes (by module)</strong></summary>#}
+                {#                    <div class="mt-2">#}
+                {#                        <ul class="mb-2">#}
+                {#                            <li><strong>Synthesis</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>Per oligo scale</em>: number of molecules per oligo (affects initial copies).</li>#}
+                {#                                    <li><em>Multiple of sample</em>: sampling multiplier controlling the amount entering later steps.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                            <li><strong>Decay</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>Years of storage</em>.</li>#}
+                {#                                    <li><em>Decay ratio</em>: loss/damage intensity.</li>#}
+                {#                                    <li><em>Temperature / Humidity</em>: environmental parameters affecting the damage model.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                            <li><strong>PCR</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>PCR cycles</em>: higher cycles increase coverage faster but also risk bias/errors.</li>#}
+                {#                                    <li><em>PCR probability</em>: per-cycle amplification efficiency.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                            <li><strong>Sampling</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>Sampling ratio</em>: proportional subsampling before library prep/sequencing.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                            <li><strong>Sequencing</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>Sequencing method</em>: Illumina SE/PE, Nanopore, PacBio, etc.</li>#}
+                {#                                    <li><em>Sequencing depth</em>: average coverage.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                        </ul>#}
+                {#                    </div>#}
+                {#                </details>#}
+
+                <div class="alert alert-warning mt-3" style="font-size: 0.95rem; border: 1px solid #f0ad4e; border-radius: 0.5rem;">
+                    <i class="fa fa-info-circle me-1"></i>
+                    Tips:
+                    <ul class="mb-0">
+                        <li>If a step is not selected, its parameter block will not appear and it will be skipped.</li>
+                        <li>To reuse the previous Encode output, keep the default file; otherwise select a new FASTA/FA.</li>
+                        <li>If you choose to simulate long-read (third-gen) sequencing, it will take longer.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <section id="demo-decode" class="doc-section">
+        <h2>Demo · Decode</h2>
+        <!-- Usage · Decode -->
+        <div class="card shadow-sm mb-4" id="decode-usage">
+            <div class="card-body">
+                <h5 class="mb-2">
+                    <i class="fa fa-book-open me-1"></i> Usage · Decode
+                </h5>
+
+                <ol class="numbered-steps mb-3">
+                    <li>
+                        <strong>Select clustering method (Cluster)</strong>: In the <em>Cluster method</em> dropdown choose:
+                        <ul>
+                            <li><em>index</em>: index-based clustering (set Index length);</li>
+                            <li><em>reference sequence</em>: clustering via reference sequence; requires the Encode output (auto-filled if you encoded earlier);</li>
+                            <li><em>I don't need cluster</em>: skip clustering.</li>
+                            <li style="color:red;">Note: if no simulation was run, you do not need clustering and reconstruction.</li>
+
+                        </ul>
+                        <div class="step-img"><img src="{% static 'images/decode_step1.png' %}" alt="Step1: Choose clustering"></div>
+                    </li>
+
+                    <li>
+                        <strong>Set reconstruction parameters (Reconstruct)</strong>:
+                        <ul>
+                            <li>Choose whether to use <em>consensus</em> for decoding (yes/no).</li>
+                            <li>Set <em>MSA copy num</em>.</li>
+                            <li>If reconstructing, choose <em>Rebuild method</em> (SeqFormer, bsalign, BMALA, DivBMA, Hybrid, Iterative, etc.).</li>
+                            <li>Optional <em>Base confidence</em> (per-base confidence/quality for soft decoding).</li>
+                            <li style="color:red;">Note: reconstruction uses MSA to recover the original encoded sequence from reads (Derrick always requires reconstruction).</li>
+
+                        </ul>
+                        <div class="step-img"><img src="{% static 'images/decode_step2.png' %}" alt="Step2: Reconstruction parameters"></div>
+                    </li>
+
+                    <li>
+                        <strong>Upload files</strong>:
+                        <ul>
+                            <li><em>Simulated File</em>: output from the simulation.</li>
+                            <li><em>Reference File</em>: the encoded reference file.</li>
+                        </ul>
+                        Shows the first 100 lines.
+                        <div class="step-img"><img src="{% static 'images/decode_step3.png' %}" alt="Step3: Upload files"></div>
+                    </li>
+
+                    <li>
+                        <strong>Run clustering</strong>: Click <em>Cluster Start</em>, a confirmation dialog appears; confirm to run clustering.
+                        <div class="step-img"><img src="{% static 'images/decode_step4.png' %}" alt="Step4: Run clustering"></div>
+                    </li>
+
+                    <li>
+                        <strong>Upload files for decoding</strong> (enabled only after clustering completes):
+                        <ul>
+                            <li><em>Decode File</em>: the clustering output.</li>
+                            <li><em>Origin File</em>: the original input file, used for final comparison.</li>
+                        </ul>
+                        <div class="step-img"><img src="{% static 'images/decode_step5.png' %}" alt="Step5: Upload for decoding"></div>
+                    </li>
+
+                    <li>
+                        <strong>Select decoding method (Decode Method)</strong>:
+                        <ul>
+                            <li><em>Algorithm</em>: DNA Fountain, YYC, Derrick, Hedges.</li>
+                            <li><em>Decision</em>: choose Hard or Soft (Soft only when Reconstruct=yes and Base confidence=yes).</li>
+                        </ul>
+                        <div class="step-img"><img src="{% static 'images/decode_step6.png' %}" alt="Step6: Choose method"></div>
+                    </li>
+
+                    <li>
+                        <strong>Set decoding parameters (Decode Settings)</strong>:
+                        <ul>
+                            <li><em>Max Copy Num</em>: number of sequences per cluster to use for decoding, which can only be used if no reconstruct is done</li>
+                        </ul>
+                        Click <em>Start Decode</em> to open a confirmation dialog, verify parameters, and begin decoding.
+                        <div class="step-img"><img src="{% static 'images/decode_step7.png' %}" alt="Step7: Decode settings"></div>
+                    </li>
+
+                    <li>
+                        <strong>View decoding results</strong>:
+                        <ul>
+                            <li>Elapsed time, bad bits, total bits, recovery rate, etc.</li>
+                            <li>Download <em>Decode Result</em> and <em>Evaluation indicators</em> (for the evaluate module).</li>
+                        </ul>
+                        <div class="step-img"><img src="{% static 'images/decode_step8.png' %}" alt="Step8: Results"></div>
+                    </li>
+
+                    <li>
+                        <strong>Do it again</strong>:
+                        <ul>
+                            <li><em>Re-cluster</em>: run clustering again.</li>
+                            <li><em>Re-decode</em>: run decoding again.</li>
+                            <li><em>Restart the entire process</em>: start over from the beginning.</li>
+                        </ul>
+                        {#                        <div class="step-img"><img src="{% static 'images/decode_step9.png' %}" alt="Step9: Repeat"></div>#}
+                    </li>
+                </ol>
+
+                {#                <details class="mb-3">#}
+                {#                    <summary><strong>Parameter notes</strong></summary>#}
+                {#                    <div class="mt-2">#}
+                {#                        <ul>#}
+                {#                            <li><strong>Cluster</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>index</em>: cluster by index; requires Index length.</li>#}
+                {#                                    <li><em>reference sequence</em>: cluster by alignment to reference; requires Encode output.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                            <li><strong>Reconstruct</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>yes</em>: use consensus; recommended with Base confidence.</li>#}
+                {#                                    <li><em>no</em>: directly use multiple sequences.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                            <li><strong>Decode Method</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>Algorithm</em>: choose the codec.</li>#}
+                {#                                    <li><em>Decision</em>: Hard vs. Soft.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                            <li><strong>Decode Settings</strong>:#}
+                {#                                <ul>#}
+                {#                                    <li><em>Max Copy Num</em>: limit the number of MSA sequences used.</li>#}
+                {#                                </ul>#}
+                {#                            </li>#}
+                {#                        </ul>#}
+                {#                    </div>#}
+                {#                </details>#}
+
+                <div class="alert alert-warning mt-3" style="font-size: 0.95rem; border: 1px solid #f0ad4e; border-radius: 0.5rem;">
+                    <i class="fa fa-info-circle me-1"></i>
+                    Tips:
+                    <ul class="mb-0">
+                        <li>Derrick always requires reconstruction.</li>
+                        <li>Soft Decision requires Reconstruct = yes and Base confidence = yes.</li>
+                        <li>The decoding algorithm must be consistent with the encoding algorithm.</li>
+                        <li>For Hedges, it’s better to set a smaller Max Copy Num, otherwise decoding can be very slow.</li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <section id="demo-evaluate" class="doc-section">
+    <h2>Demo · Evaluate</h2>
+    <!-- Usage · Evaluate -->
+    <div class="card shadow-sm mb-4" id="evaluate-usage">
+    <div class="card-body">
+    <h5 class="mb-2">
+        <i class="fa fa-book-open me-1"></i> Usage · Evaluate
+    </h5>
+
+    <ol class="numbered-steps mb-3">
+        <li>
+            <strong>Upload CSV files</strong>:
+            Each row represents one experiment or one method.
+            Required columns (case-insensitive/aliases allowed):
+            <code>Method</code>, <code>Filename</code>, and any of the following numeric columns:
+            <code>Costs</code>, <code>Sequencing Depth Requirement</code>, <code>Encoding Runtime</code>,
+            <code>Decoding Runtime</code>, <code>Physical Ratio</code>, <code>Logical Ratio</code>,
+            <code>GC Contents</code>, <code>Maximum Homopolymers Length</code>, <code>File Recovery</code>.
+            {#            <div class="step-img"><img src="{% static 'images/evaluate_step1.png' %}" alt="Step1: Prepare CSV"></div>#}
+        </li>
+
+        <li>
+            <strong>Select files (CSV Upload)</strong>:
+            Click <em>Select CSV Files</em> to choose one or more CSVs.
+            To append, click <em>Add More Files</em>; to clear, click <em>Clear All</em>.
+            <div class="step-img"><img src="{% static 'images/evaluate_step1.png' %}" alt="Step2: Select or append CSV"></div>
+        </li>
+
+        <li>
+            <strong>Preview</strong>:
+            After selection, the system parses and shows the first 30 rows of each CSV so you can verify column names and formats.
+            {#            <div class="step-img"><img src="{% static 'images/evaluate_step2.png' %}" alt="Step3: Preview CSV"></div>#}
+        </li>
+
+        <li>
+            <strong>Evaluation mode</strong>:
+            Two comparison modes are supported:
+            <ul>
+                <li><strong>Same Method, Different Files</strong> — compare the same method across multiple files.</li>
+                <li><strong>Same File, Different Methods</strong> — compare multiple methods on the same file.</li>
+            </ul>
+            ⚠️ If both multiple methods and multiple files are detected simultaneously, the system prompts you to restrict to one dimension.
+            {#            <div class="step-img"><img src="{% static 'images/evaluate_step2.png' %}" alt="Step4: Choose mode"></div>#}
+        </li>
+
+        <li>
+            <strong>Generate charts</strong>:
+            Click <em>Generate Charts</em>. The system merges valid data according to the chosen mode and renders a
+            <em>radar chart</em> for performance comparison across methods or files.
+            <div class="step-img"><img src="{% static 'images/evaluate_step2.png' %}" alt="Step5: Generate radar chart"></div>
+        </li>
+
+        <li>
+            <strong>Read the charts</strong>:
+            Toggle methods/files via the legend; hover to view exact metric values.
+            The tooltip displays both the raw mean and the normalized value used for plotting.
+            Each metric is normalized against its own maximum to avoid scale bias.
+            <div class="step-img" style="max-width:60%; height:auto; display:block; margin:0.5rem auto;"><img src="{% static 'images/evaluate_step4.png' %}" alt="Step6: Read & compare"></div>
+        </li>
+
+        <li>
+            <strong>Import again</strong>:
+            When changing data, use <em>Clear All</em> to reset, or continue with <em>Add More Files</em> to add new files.
+            {#            <div class="step-img"><img src="{% static 'images/evaluate_step7.png' %}" alt="Step7: Re-import"></div>#}
+        </li>
+        <div class="alert alert-warning mt-3" style="font-size: 0.95rem; border: 1px solid #f0ad4e; border-radius: 0.5rem;">
+            <i class="fa fa-info-circle me-1"></i>
+            Tips:
+            <ul class="mb-0">
+                <li>The two comparison modes are: (1) same file with different methods; (2) different files with the same method.</li>
+                <li>You can zoom the radar chart with the mouse wheel.</li>
+                <li>Hovering over a metric shows the original value.</li>
+            </ul>
+        </div>
+    </ol>
+
+    {#    <details class="mb-3">#}
+    {#        <summary><strong>CSV column alias compatibility</strong></summary>#}
+    {#        <div class="mt-2 small">#}
+    {#            The page supports common aliases (examples):#}
+    {#            <ul class="mb-2">#}
+    {#                <li><strong>Costs</strong>: <code>Costs</code> / <code>cost</code> / <code>costs</code></li>#}
+    {#                <li><strong>Sequencing Depth Requirement</strong>: <code>Sequencing Depth Requirement</code> / <code>copy_num</code> / <code>depth</code> / <code>seq_depth</code></li>#}
+    {#                <li><strong>Encoding Runtime</strong>: <code>Encoding Runtime</code> / <code>encode_time</code> / <code>encoding_time</code></li>#}
+    {#                <li><strong>Decoding Runtime</strong>: <code>Decoding Runtime</code> / <code>decode_time</code> / <code>decoding_time</code></li>#}
+    {#                <li><strong>Physical Ratio</strong>: <code>Physical Ratio</code> / <code>physical density</code> / <code>physical_ratio</code></li>#}
+    {#                <li><strong>Logical Ratio</strong>: <code>Logical Ratio</code> / <code>logical density</code> / <code>logical_ratio</code></li>#}
+    {#                <li><strong>GC Contents</strong>: <code>GC Contents</code> / <code>gc_content</code> / <code>gc</code></li>#}
+    {#                <li><strong>Maximum Homopolymers Length</strong>: <code>Maximum Homopolymers Length</code> / <code>max_homopolymer</code></li>#}
+    {#                <li><strong>File Recovery</strong>: <code>File Recovery</code> / <code>file_recovery</code> / <code>bit_recovery</code></li>#}
+    {#            </ul>#}
+    {#            Method column: <code>Method</code>/<code>method</code>#}
+    {#            Filename column: <code>Filename</code>/<code>filename</code>#}
+    {#        </div>#}
+    {#    </details>#}
+
+
+    <div class="mt-3 small text-muted">
+    <i class="fa fa-info-cir
+
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <button class="back-to-top">↑</button>
+{% endblock %}
+
+{% block script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = Array.from(document.querySelectorAll('.doc-sidebar .nav-link[href^="#"]'));
+            const sections = navLinks
+                .map(a => document.querySelector(a.getAttribute('href')))
+                .filter(Boolean); // 去掉不存在的 id，防止 observe 报错
+
+            // 统一设置 active 的方法
+            const setActive = (id) => {
+                navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === `#${id}`));
+            };
+
+            // 点击：立刻高亮 + 平滑滚动 + 更新 hash（不触发跳跃）
+            navLinks.forEach(a => {
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const href = a.getAttribute('href');
+                    const target = document.querySelector(href);
+                    if (!target) return;
+
+                    setActive(target.id);
+                    // 用 scrollIntoView 配合上面的 scroll-margin-top 更稳
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, '', href);
+                });
+            });
+
+            // 观察可视区：考虑顶部偏移，用 rootMargin 提前触发
+            const io = new IntersectionObserver((entries) => {
+                // 找到最靠近视口顶部的那个可见 section
+                const visible = entries
+                    .filter(en => en.isIntersecting)
+                    .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
+                if (visible) setActive(visible.target.id);
+            }, {
+                root: null,
+                // 上方预留 120px（与你的 scroll-margin-top 对齐），下方留多点避免抖动
+                rootMargin: '-120px 0px -70% 0px',
+                threshold: [0, 0.25, 0.5, 1]
+            });
+
+            sections.forEach(sec => io.observe(sec));
+
+            // 初始高亮（有 hash 用 hash；没有则第一个）
+            const initialTarget = (location.hash && document.querySelector(location.hash)) || sections[0];
+            if (initialTarget) setActive(initialTarget.id);
+
+            // 返回顶部按钮（保持你原逻辑）
+            const backBtn = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => {
+                if (backBtn) backBtn.style.display = window.scrollY > 400 ? 'block' : 'none';
+            });
+            if (backBtn) backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,3 @@
+Error opening output file!
+
+Time elapsed: 0	seconds

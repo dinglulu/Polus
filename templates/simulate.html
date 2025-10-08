@@ -1,0 +1,917 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+
+{% block link %}
+    {#        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">#}
+    <link rel="stylesheet"
+          href="{% static 'css/all.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+{% endblock %}
+{% block css %}
+    #confirmModal .modal-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    }
+    .btn-red {
+    background-color: #dc3545; /* Bootstrap 危险色 */
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3); /* 红色阴影 */
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    }
+    .btn-red:hover {
+    background-color: #bb2d3b; /* 深红 hover 色 */
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+    }
+
+    #confirmModal .modal-body {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    }
+
+    #confirmModal ul#paramSummary li {
+    font-size: 1.05rem;
+    margin-bottom: 0.3rem;
+    }
+
+    .container.my-5 {
+    max-width: 80vw;
+    width: 100%;
+
+    background-color: #fdfdfd; /* 或者 #f8f9fa，比纯白柔和 */
+    padding: 4rem 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease;
+    }
+    .section-header {
+    font-weight: bold;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    }
+    .section-header i {
+    color: #007bff;
+    margin-right: 8px;
+    font-size: 1.2em;
+    }
+    .section-divider {
+    border-top: 1px solid #ddd;
+    margin-top: -0.3rem;
+    margin-bottom: 1rem;
+    }
+    .section-box {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1rem 1.5rem;
+    background-color: #fff;
+    }
+    .simulation-label {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    {#    不会小于 0.9rem，也不会大于 1.1rem。#}
+    font-weight: 500;
+    }
+    .form-check-input {
+    transform: scale(1.2);
+    margin-right: 6px;
+    }
+
+    :root {
+    --primary-blue: #007bff;
+    --primary-blue-hover: #0056b3;
+    --text-dark: #212529;
+    --text-light: #6c757d;
+    --bg-light: #f8f9fa;
+    --border-color: #dee2e6;
+    }
+
+    body {
+    background-color: #fff;
+    color: var(--text-dark);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-title {
+    color: var(--primary-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 2rem;
+    user-select: none;
+    }
+
+    .section-title {
+    background-color: rgba(0, 123, 255, 0.2); /* 加一点淡蓝底 */
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    user-select: none;
+    }
+
+    .section-title .fa {
+    color: var(--primary-blue);
+    margin-right: 10px;
+    }
+
+    .form-label.parameter {
+    font-weight: 500;
+    font-size: 1.2em;
+    color: var(--text-dark); /* 原来是 text-light */
+    user-select: none;
+    }
+
+    .form-control {
+
+    height: 2.5rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    font-family: inherit;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+
+    .form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+    }
+
+
+    .btn-main {
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    }
+
+    .btn-main:hover:not(:disabled) {
+    background-color: var(--primary-blue-hover);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+    color: white;
+    }
+
+    .btn-main:disabled {
+    background-color: #6c757d;
+    color: white;
+    cursor: not-allowed;
+    box-shadow: none;
+    }
+
+
+    /* 进度条默认Bootstrap 4样式即可 */
+    .progress-bar {
+    background-color: var(--primary-blue);
+    transition: width 0.4s ease;
+    }
+
+    /* 预览区域等样式保持不变 */
+
+
+    .preview-area {
+    min-height: 100px; /* 初始高度更小 */
+    max-height: 400px; /* 预览框最大高度 */
+    max-width: 100%;
+    background-color: var(--bg-light);
+    border: 1px dashed var(--border-color);
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-style: italic;
+    overflow-y: auto; /* 内容超出可滚动 */
+    padding: 1rem;
+    transition: height 0.3s ease;
+    user-select: text;
+    }
+
+    .preview-area img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 4px;
+    object-fit: contain;
+    user-select: none;
+    }
+
+    .preview-area pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-dark);
+    max-height: 10vw;
+    overflow-y: auto;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 1.2rem;
+    user-select: text;
+    }
+
+    .btn-main {
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    }
+
+    .btn-main:hover:not(:disabled) {
+    background-color: var(--primary-blue-hover);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+    color: white;
+    }
+
+    .btn-main:disabled {
+    background-color: #6c757d;
+    color: white;
+    cursor: not-allowed;
+    box-shadow: none;
+    }
+
+    .progress-bar {
+    background-color: var(--primary-blue);
+    transition: width 0.4s ease;
+    }
+
+
+{% endblock %}
+
+{% block content %}
+
+    <div style="background-color: #f1f3f5; padding: 2rem 0;height: 100% ;min-height:100vh">
+
+        <div class="container my-5">
+            <h1 class="text-center" data-aos="fade-up"
+                style="font-size: 3vw;font-family: Arial;color: #007bff!important;">
+                DNA Simulate Module
+            </h1>
+            {#synthesis, amplification, decay, and sequencing#}
+            <form action="{% url 'simulate' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+
+                {#            选择需要哪些模拟步骤#}
+                <div class="mb-5">
+
+                    {#                    <div class="section-header mt-4">#}
+                    {#                        <i class="fa fa-flask text-primary"></i> SIMULATION STEPS#}
+                    {#                    </div>#}
+                    <h5 class="section-title mb-3" ><i class="fa fa-vials"></i>SIMULATION STEPS</h5>
+                    <div class="section-divider"></div>
+                    {#        simulation steps:#}
+
+                    <div class="section-box">
+                        <div class="row">
+                            <label class="col-sm-3 col-form-label simulation-label" style="font-size: 1.2rem">Simulation
+                                Steps:</label>
+                            <div class="col-sm-8 d-flex flex-wrap align-items-center">
+                                <div class="form-check form-check-inline mx-3">
+                                    <input class="form-check-input" type="checkbox" name="channel" id="synthesis"
+                                           value="synthesis" disabled checked>
+                                    <label class="form-check-label simulation-label" for="synthesis">Synthesis</label>
+                                </div>
+                                <div class="form-check form-check-inline mx-3">
+                                    <input class="form-check-input" type="checkbox" name="channel" id="decay"
+                                           value="decay"
+                                           {% if simulate %}disabled{% endif %}
+                                           {% if "decay" in base.channel %}checked{% endif %}>
+                                    <label class="form-check-label simulation-label" for="decay">Decay</label>
+                                </div>
+                                <div class="form-check form-check-inline mx-3">
+                                    <input class="form-check-input" type="checkbox" name="channel" id="PCR" value="PCR"
+                                           {% if simulate %}disabled{% endif %}
+                                           {% if "PCR" in base.channel %}checked{% endif %}>
+                                    <label class="form-check-label simulation-label" for="PCR">PCR</label>
+                                </div>
+                                <div class="form-check form-check-inline mx-3">
+                                    <input class="form-check-input" type="checkbox" name="channel" id="sampling"
+                                           value="sampling"
+                                           {% if simulate %}disabled{% endif %}
+                                           {% if "sampling" in base.channel %}checked{% endif %}>
+                                    <label class="form-check-label simulation-label" for="sampling">Sampling</label>
+                                </div>
+                                <div class="form-check form-check-inline mx-3">
+                                    <input class="form-check-input" type="checkbox" name="channel" id="sequencing"
+                                           value="sequencing"
+                                           {% if simulate %}disabled{% endif %}
+                                           {% if "sequencing" in base.channel %}checked{% endif %}>
+                                    <label class="form-check-label simulation-label" for="sequencing">Sequencing</label>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-1 d-flex flex-wrap align-items-center">
+                                <button type="submit" id="stepsok" name="stepsok" class="btn btn-primary "
+                                        {% if simulate %}disabled="true"{% endif %}>OK
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                {#            选好了参数之后#}
+                {% if simulate %}
+                    {#            <div class="mb-3">#}
+                    {#                <label for="file" class="form-label">upload file：</label>#}
+                    {#                <input class="form-control" type="file" id="file">#}
+                    {#            </div>#}
+
+                    {# 选择输入的文件，默认是前面编码完的文件#}
+                    <div class="mb-5" >
+                        <h5 class="section-title mb-3" ><i class="fa fa-upload"></i>Input</h5>
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="custom-file">
+                                    <label for="inputFile" class="form-label parameter custom-file-label "
+                                           id="fileNameLabel">Select file</label>
+                                    <div class="input-group">
+
+                                        <input type="text" class="custom-file-input" id="filename"
+                                               value="{{ base.filename }}" hidden
+                                               name="filename">
+                                        <input type="file" class="custom-file-input" id="inputFile"
+                                               accept=".fasta,.fa,.fna"
+                                               name="file" style="height: 3rem; "
+                                        >
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary mt-3" id="uploadBtn"
+                                        style="display: none;">Upload to Preview
+                                </button>
+                                <div id="uploadProgressContainer" class="progress mt-2"
+                                     style="height: 10px; display: none;">
+                                    <div id="uploadProgressBar"
+                                         class="progress-bar progress-bar-striped progress-bar-animated"
+                                         role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label parameter">File Preview (Only first 100 lines shown in
+                                    preview)</label>
+
+                                {% if preview_content %}
+                                    <div id="preview_encode" class="preview-area"
+                                         style="height: 10vw ;  overflow-y: auto;">
+
+                                        <pre style="white-space: pre-wrap; word-break: break-word; max-height: 100%; overflow-y: auto;">{{ preview_content }}</pre>
+                                    </div>
+                                {% else %}
+                                    <div id="preview_encode" class="preview-area p-3"
+                                         style="height: 100px; overflow-y: auto;">
+                                        Select a file and click "Upload to Preview"
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {#                设置 合成的参数#}
+                    <div class="mb-5" id="synthesis-parameters">
+                        <h5 class="section-title mb-3"><i class="fa fa-dna"></i>Synthesis</h5>
+                        <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                            <div class="row ">
+
+                                <div class="col-md-6">
+                                    <label for="oligo_scale" class="form-label parameter">Per oligo scale</label>
+                                    <input type="number" step="0.1" class="form-control"
+                                           id="oligo_scale" value="{{ base.oligo_scale }}" name="oligo_scale"
+                                           {% if sequencing_data %}disabled="true"{% endif %}>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="sample_multiple" class="form-label parameter">Multiple of
+                                        sample</label>
+                                    <input type="number" class="form-control"
+                                           id="sample_multiple" value="{{ base.sample_multiple }}"
+                                           name="sample_multiple"
+                                           {% if sequencing_data %}disabled="true"{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if "decay" in base.channel %}
+                        <div class="mb-5" id="decay-parameters">
+                            <h5 class="section-title mb-3"><i class="fa fa-hourglass-half"></i>Decay</h5>
+                            <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                                <div class="row ">
+
+                                    <div class="col-md-3">
+                                        <label for="decay_year" class="form-label parameter">Years of storage</label>
+                                        <input type="number" class="form-control" id="decay_year"
+                                               value="{{ base.decay_year }}" name="decay_year"
+                                               {% if sequencing_data %}disabled="true"{% endif %}>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="decaylossrate" class="form-label parameter">Decay ratio</label>
+                                        <input type="number" class="form-control" id="decaylossrate"
+                                               value="{{ base.decaylossrate }}" name="decaylossrate"
+                                               {% if sequencing_data %}disabled="true"{% endif %}>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="temperature" class="form-label parameter">Temperature</label>
+                                        <input type="number" class="form-control" id="temperature"
+                                               value="{{ base.temperature }}" name="temperature"
+                                               {% if sequencing_data %}disabled="true"{% endif %}>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="humidity" class="form-label parameter">Humidity</label>
+                                        <input type="number" class="form-control" id="humidity"
+                                               value="{{ base.humidity }}" name="humidity"
+                                               {% if sequencing_data %}disabled="true"{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                    {% if "PCR" in base.channel %}
+                        <div class="mb-5" id="pcr-parameters">
+                            <h5 class="section-title mb-3"><i class="fa fa-vial"></i>PCR</h5>
+                            <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <label for="pcrcycle" class="form-label parameter">PCR cycles</label>
+                                        <input type="number" class="form-control" id="pcrcycle"
+                                               value="{{ base.pcrcycle }}" name="pcrcycle"
+                                               {% if sequencing_data %}disabled="true"{% endif %}>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="pcrpro" class="form-label parameter">PCR probability</label>
+                                        <input type="number" class="form-control" id="pcrpro"
+                                               value="{{ base.pcrpro }}" name="pcrpro"
+                                               {% if sequencing_data %}disabled="true"{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                    {% if "sampling" in base.channel %}
+                        <div class="mb-5" id="sampling-parameters">
+                            <h5 class="section-title mb-3"><i class="fa fa-filter"></i>Sampling</h5>
+                            <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                                <div class="row ">
+                                    <div class="col-md-12">
+                                        <label for="sample_ratio" class="form-label parameter">Sampling ratio</label>
+                                        <input type="text" class="form-control" id="sample_ratio"
+                                               value="{{ base.sample_ratio }}" name="sample_ratio"
+                                               {% if sequencing_data %}disabled="true"{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                    {% if "sequencing" in base.channel %}
+                        <div class="mb-5" id="sequencing-parameters">
+                            <h5 class="section-title mb-3"><i class="fa fa-microscope"></i>sequencing</h5>
+                            <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <label for="synthesis-method" class="form-label parameter">Sequencing
+                                            method</label>
+                                        <select id="synthesis-method" name="sequencing_method" class="form-control"
+                                                {% if sequencing_data %}disabled="true"{% endif %}>
+                                            <option {% if base.sequencing_method == "single-end" %}selected{% endif %}
+                                                    value="single-end">illumina (single-end)
+                                            </option>
+                                            <option {% if base.sequencing_method == "paired-end" %}selected{% endif %}
+                                                    value="paired-end">illumina (paired-end)
+                                            </option>
+                                            <option {% if base.sequencing_method == "Nanopone" %}selected{% endif %}
+                                                    value="Nanopone">Nanopone (paired-end)
+                                            </option>
+                                            <option {% if base.sequencing_method == "Pacbio" %}selected{% endif %}
+                                                    value="Pacbio">Pacbio (paired-end)
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="depth" class="form-label parameter">Sequencing depth</label>
+                                        <input type="number" class="form-control" id="depth" value="{{ base.depth }}"
+                                               name="depth"
+                                               {% if sequencing_data %}disabled="true"{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    {% endif %}
+
+                    <button type="submit" id="synseqBtn" name="synseqBtn" class="btn btn-primary mt-3"
+                            style="display: none;"
+                            {% if sequencing_data %}disabled="true"{% endif %}>start simulate
+                    </button>
+
+                    <button type="button" id="synseqBtn1" name="synseqBtn1" class="btn btn-main">
+                        <i class="fa fa-play-circle"></i> start simulate
+                    </button>
+
+
+
+
+                    <div class="row mt-4">
+                        <h4>result</h4>
+                    </div>
+                    <div class="row mt-2 mb-5">
+                        <div class="col-md-10">
+                            <div class="card mt-3">
+                                <div class="card-body">
+                                    {% if sequencing_data %}
+                                        <input hidden value="{{ sequencing_data }}" name="sequencing_data"/>
+                                        <div id="encode-info1">
+                                            <h5 class="card-title">simulate result:</h5>
+                                            <p class="card-text">
+                                            <div>sequencing cost time：{{ sequencing_data.time }}</div>
+                                            {#                                            <div>sequencing file size：{{ sequencing_data.size }}</div>#}
+                                            </p>
+                                            <a href="{% url 'download_file' mode='simulate' %}" class="download-link btn btn-main">download</a>
+                                            <a href="?reset=1" id="reencodeBtn" class="btn btn-red" >
+                                                <i class="fa fa-refresh"></i> Re-simulate
+                                            </a>
+
+                                            {#                                    <button type="button" class="btn btn-success mt-3">#}
+                                            {#                                        点击下载#}
+                                            {#                                    </button>#}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {#            <div class="mt-4 form-group text-right">#}
+                    {#                <button id="reset" class="btn btn-secondary" type="reset" name="reset">重置</button>#}
+                    {#                <button type="submit" id="next" name="next" class="btn btn-success">下一步></button>#}
+                    {#            </div>#}
+                {% endif %}
+
+
+            </form>
+
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Simulation Parameters Confirmation</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h5 class="text-primary">  File Info</h5>
+                        <ul class="list-group mb-3" id="paramFileInfo"></ul>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="text-primary">  Simulation Steps</h5>
+                        <ul class="list-group mb-3" id="paramSteps"></ul>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="text-primary">  Synthesis</h5>
+                        <ul class="list-group mb-3" id="paramSynthesis"></ul>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="text-primary">  Decay</h5>
+                        <ul class="list-group mb-3" id="paramDecay"></ul>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="text-primary">  PCR</h5>
+                        <ul class="list-group mb-3" id="paramPCR"></ul>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="text-primary">  Sampling</h5>
+                        <ul class="list-group mb-3" id="paramSampling"></ul>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="text-primary">  Sequencing</h5>
+                        <ul class="list-group mb-3" id="paramSequencing"></ul>
+                    </div>
+                </div>
+
+
+                <div id="loading-container" class="text-center mt-3" style="display: none;">
+                    <p style="font-weight: bold;">Simulating in progress...</p>
+                    <div class="progress" style="height: 20px;">
+                        <div id="simulateProgressBar"
+                             class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                             role="progressbar"
+                             style="width: 0%;"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            0%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmSubmitBtn">Confirm & Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                    <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-dark" id="errorModalBody">
+                    <!-- 错误信息会被动态插入这里 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block script %}
+    {#    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>#}
+    <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    {#    script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>#}
+    {#    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.x.x/dist/js/bootstrap.bundle.min.js"></script>#}
+    <script>
+        $(document).ready(function () {
+            setupFileInputChangeHandler();
+            setupUploadButtonHandler();
+            setupFilenameLabel();
+            setupScrollPositionPersistence();
+            setupConfirmModalDisplay();
+            setupSimulateProgressBar();
+            disableFormIfNeeded();
+        });
+
+        // 1. 文件选择事件处理
+        function setupFileInputChangeHandler() {
+            const inputFile = $('#inputFile');
+            const uploadBtn = $('#uploadBtn');
+            const progressBar = $('#uploadProgressBar');
+
+            inputFile.on('change', function (e) {
+                if (e.target.files.length > 0) {
+                    uploadBtn.click();
+                    progressBar.width('0%').text('0%');
+                } else {
+                    uploadBtn.hide();
+                }
+            });
+        }
+
+        // 2. 上传并预览功能
+        function setupUploadButtonHandler() {
+            const inputFile = $('#inputFile');
+            const previewContainer = $('#preview_encode');
+            const progressContainer = $('#uploadProgressContainer');
+            const progressBar = $('#uploadProgressBar');
+            const uploadBtn = $('#uploadBtn');
+
+            uploadBtn.on('click', function () {
+                const file = inputFile[0].files[0];
+                if (!file) return alert("Please select a file first.");
+
+                const formData = new FormData();
+                formData.append('file_for_preview', file);
+
+                const uploadUrl = "{% url 'preview_fasta_file_for_simulate' %}";
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', uploadUrl, true);
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+                xhr.upload.onprogress = function (e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressContainer.show();
+                        progressBar.width(percentComplete + '%').text(Math.round(percentComplete) + '%');
+                    }
+                };
+
+                xhr.onerror = function () {
+                    alert('Upload error, please retry.');
+                    progressContainer.hide();
+                };
+
+                xhr.onload = function () {
+                    progressContainer.hide();
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        renderPreview(response, file, previewContainer);
+                    } else {
+                        previewContainer.text('Server error: Cannot preview file.');
+                    }
+                };
+
+                xhr.send(formData);
+            });
+        }
+
+        // 渲染预览区域
+        function renderPreview(response, file, container) {
+            container.html('');
+            const fileType = response.file_type;
+            const content = response.file_content;
+
+            if (fileType.startsWith('image/')) {
+                container.css('height', '11vw').append($('<img>').attr('src', content).addClass('img-fluid'));
+            } else if (fileType.startsWith('text/')) {
+                container.css('height', '11vw').append($('<pre>').text(content));
+            } else {
+                container.text(`'${response.file_name}' is a binary file. No preview available.`);
+            }
+        }
+
+        // 3. 文件名显示
+        function setupFilenameLabel() {
+            const filename = $('#filename').val();
+            if (filename) {
+                document.getElementById('fileNameLabel').textContent = filename;
+            }
+
+            $('#inputFile').on('change', function (e) {
+                $(".custom-file-label").html(e.target.files[0].name);
+            });
+        }
+
+        // 4. 滚动位置记忆
+        function setupScrollPositionPersistence() {
+            const STORAGE_KEY = 'scrollPosition';
+            window.addEventListener('scroll', function () {
+                sessionStorage.setItem(STORAGE_KEY, window.pageYOffset || document.documentElement.scrollTop);
+            });
+            window.addEventListener('load', function () {
+                const pos = sessionStorage.getItem(STORAGE_KEY);
+                if (pos) window.scrollTo(0, parseInt(pos));
+            });
+        }
+
+        // 5. 模拟确认框显示及参数收集
+        function setupConfirmModalDisplay() {
+            $('#synseqBtn1').on('click', function () {
+                const selectedSteps = $('input[name="channel"]:checked').map((_, el) => $(el).val()).get();
+
+                const paramList = [
+                    {label: 'Filename', value: $('#filename').val()},
+                    {label: 'Per oligo scale', value: $('#oligo_scale').val()},
+                    {label: 'Sample multiple', value: $('#sample_multiple').val()},
+                    {label: 'Decay years', value: $('#decay_year').val()},
+                    {label: 'Decay loss rate', value: $('#decaylossrate').val()},
+                    {label: 'Temperature', value: $('#temperature').val()},
+                    {label: 'Humidity', value: $('#humidity').val()},
+                    {label: 'PCR cycles', value: $('#pcrcycle').val()},
+                    {label: 'PCR probability', value: $('#pcrpro').val()},
+                    {label: 'Sampling ratio', value: $('#sample_ratio').val()},
+                    {label: 'Sequencing method', value: $('#synthesis-method').val()},
+                    {label: 'Sequencing depth', value: $('#depth').val()},
+                ];
+
+                $('#paramFileInfo').html(`<li class="list-group-item"><strong>Filename:</strong> ${paramList[0].value || 'N/A'}</li>`);
+                $('#paramSteps').html(`<li class="list-group-item">${selectedSteps.join(', ') || 'None selected'}</li>`);
+                $('#paramDecay, #paramPCR, #paramSampling, #paramSequencing, #paramOthers').empty();
+
+                paramList.slice(1).forEach(p => {
+                    if (p.value) {
+                        let target = '#paramOthers';
+                        if (p.label.match(/oligo|sample multiple/i)) target = '#paramSynthesis';
+                        else if (p.label.match(/Decay|Temperature|Humidity/i)) target = '#paramDecay';
+                        else if (p.label.match(/PCR/i)) target = '#paramPCR';
+                        else if (p.label.match(/Sampling/i)) target = '#paramSampling';
+                        else if (p.label.match(/Sequencing/i)) target = '#paramSequencing';
+
+                        $(target).append(`<li class="list-group-item"><strong>${p.label}:</strong> ${p.value}</li>`);
+                    }
+                });
+
+                new bootstrap.Modal(document.getElementById('confirmModal')).show();
+            });
+        }
+
+        // 6. 模拟进度条启动
+        function setupSimulateProgressBar() {
+            $('#confirmSubmitBtn').on('click', function () {
+                const confirmBtn = $(this);
+                confirmBtn.prop('disabled', true).text('Processing...');
+
+                const loadingContainer = $('#loading-container');
+                const progressBar = $('#simulateProgressBar');
+                const fileInput = $('#inputFile')[0];
+                const platform = $('#synthesis-method').val();
+                const depth = parseFloat($('#depth').val()) || 1;
+                const sizeKB = parseFloat("{{ encode_outfile_size_kb|default:200 }}") || 200;
+
+                const platformMultiplier = {
+                    "single-end": 1.0, "paired-end": 1.2, "Nanopone": 10.0, "Pacbio": 12.5
+                }[platform] || 1.5;
+
+                const totalMs = Math.max(2000, 1000 * (sizeKB / 1000) * depth * platformMultiplier*3);
+                const interval = 100;
+                const steps = Math.floor(totalMs / interval);
+                let current = 0;
+
+                loadingContainer.show();
+                progressBar.width('0%').text('0%');
+
+                const id = setInterval(() => {
+                    if (current < steps) {
+                        current++;
+                        const percent = Math.min(95, Math.floor((current / steps) * 100));
+                        progressBar.width(percent + '%').attr('aria-valuenow', percent).text(percent + '%');
+                    } else {
+                        clearInterval(id);
+                        // ✅ 可选：重新启用按钮
+                        // confirmBtn.prop('disabled', false).text('Confirm & Submit');
+                    }
+                }, interval);
+
+                $('#synseqBtn').click();  // 提交任务
+                setTimeout(() => {
+                    $('input, select, textarea')
+                        .not('#uploadBtn, #inputFile, #synseqBtn')
+                        .prop('disabled', true)
+                        .css({
+                            'background-color': '#e9ecef',
+                            'color': '#6c757d',
+                            'cursor': 'not-allowed'
+                        });
+                }, 100); // 微小延迟以确保 click() 完成注册
+            });
+
+        }
+
+        // 7. 禁用页面元素（根据后端变量）
+        function disableFormIfNeeded() {
+            {% if disable %}
+                // 直接执行，而不是等 DOMContentLoaded
+                document.querySelectorAll("input, select, textarea, button").forEach(el => {
+                    el.disabled = true;
+                    el.style.backgroundColor = '#e9ecef';
+                    el.style.color = '#6c757d';
+                    el.style.cursor = 'not-allowed';
+                });
+            {% endif %}
+        }
+
+    </script>
+
+    {% if errors %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const errorMessage = `{{ errors|escapejs }}`;  // 转义防止 XSS
+                document.getElementById("errorModalBody").textContent = errorMessage;
+
+                const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+                modal.show();
+            });
+        </script>
+    {% endif %}
+{% endblock %}

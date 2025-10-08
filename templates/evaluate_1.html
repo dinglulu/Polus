@@ -1,0 +1,178 @@
+{% extends "layout.html" %}
+{% load static %}
+
+
+{% block css %}
+   .container.my-5 {
+  max-width: 90vw;
+  width: 100%;
+  background-color: #fdfdfd; /* 或者 #f8f9fa，比纯白柔和 */
+  padding: 4rem 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 2vh 2vw;
+  background: #f4f4f4;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 4vh;
+  font-size: 2.5vw;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(42vw, 1fr));
+  gap: 2rem;
+
+}
+.chart-container {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
+  transition: transform 0.2s ease;
+  aspect-ratio: 4 / 3;
+  max-height: 80vh;       /* ✅ 限制最大高度 */
+  min-height: 100px;      /* ✅ 防止过小 */
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+.chart-container:hover {
+  transform: translateY(-0.25rem);
+}
+
+.chart-title {
+  font-weight: bold;
+  font-size: 1.6rem;
+  margin-bottom: 1.3rem;
+  text-align: center;
+  color: #333;
+}
+
+.echart {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;  /* ✅ 必须是 100%，不能是固定 vh 或 px */
+  min-height: 280px;
+}
+
+
+{% endblock %}
+
+{% block content %}
+    <div style="background-color: #f1f3f5; padding: 2rem 0;">
+{#    <h1>DNA Codec Decode Time Dashboard</h1>#}
+        <form id="csvUploadForm" enctype="multipart/form-data" method="post">
+  {% csrf_token %}
+  <input type="file" name="csv_file" id="csv_file" accept=".csv" required>
+  <button type="submit" class="btn btn-primary">Generate Charts</button>
+</form>
+
+
+
+
+     <div class="container my-5">
+             <h1 class="text-center" data-aos="fade-up" style="font-size: 3vw;font-family: Arial;color: #007bff!important;">
+            DNA Evaluate Module
+        </h1>
+    <div class="chart-grid">
+    <div class="chart-container"><div class="chart-title">Decoding Time/Speed Chart</div><div id="chart1" class="echart"></div></div>
+    <div class="chart-container"><div class="chart-title">Information Density Chart</div><div id="chart2" class="echart"></div></div>
+    <div class="chart-container"><div class="chart-title">Encoding Time/Speed Chart</div><div id="chart3" class="echart"></div></div>
+    <div class="chart-container"><div class="chart-title">File Recovery Chart</div><div id="chart4" class="echart"></div></div>
+    <div class="chart-container"><div class="chart-title">Sequencing Depth Requirement Chart</div><div id="chart5" class="echart"></div></div>
+    <div class="chart-container"><div class="chart-title"> Time Chart</div><div id="chart6" class="echart"></div></div>
+    <div class="chart-container"><div class="chart-title"> Time Chart</div><div id="chart7" class="echart"></div></div>
+    <div class="chart-container"><div class="chart-title"> Time Chart</div><div id="chart8" class="echart"></div></div>
+    <div class="chart-container"><div class="chart-title"> Time Chart</div><div id="chart9" class="echart"></div></div>
+  </div>
+     </div>
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+
+<script>
+  document.getElementById("csvUploadForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    fetch("{% url 'upload_csv' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: formData,
+    })
+    .then(response => response.json())
+    .then(result => {
+      if (result.status === 'ok') {
+        renderCharts(result.data, result.header);
+      } else {
+        alert("Upload failed: " + result.msg);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  function renderCharts(data) {
+  const filenames = [...new Set(data.map(row => row.filename))];
+  const methods = [...new Set(data.map(row => row.method))];
+
+  function buildSeries(metric) {
+    return methods.map(method => ({
+      name: method,
+      type: 'line',
+      smooth: true,
+      data: filenames.map(filename => {
+        const row = data.find(r => r.method === method && r.filename === filename);
+        return row ? row[metric] : null;
+      })
+    }));
+  }
+
+  const chartConfigs = [
+    { id: 'chart1', metric: 'decode_time', title: 'Decoding Time (s)' },
+    { id: 'chart2', metric: 'density', title: 'Information Density' },
+    { id: 'chart3', metric: 'encode_time', title: 'Encoding Time (s)' },
+    { id: 'chart4', metric: 'bit_recovery', title: 'Bit Recovery Rate' },
+    { id: 'chart5', metric: 'copy_num', title: 'Sequencing Depth' },
+  ];
+
+  chartConfigs.forEach(cfg => {
+    const chart = echarts.init(document.getElementById(cfg.id));
+    chart.setOption({
+      title: { text: cfg.title, left: 'center' },
+      tooltip: { trigger: 'axis' },
+      legend: { data: methods, top: 30 },
+      xAxis: {
+        type: 'category',
+        data: filenames,
+        axisLabel: { interval: 0, rotate: 15 }
+      },
+      yAxis: { type: 'value', name: cfg.title },
+      series: buildSeries(cfg.metric)
+    });
+  });
+}
+
+</script>
+
+
+
+{% endblock %}

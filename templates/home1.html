@@ -1,0 +1,240 @@
+{% extends 'layout.html' %}
+
+{% block  content %}
+    <style>
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 700px; /* 轮播图高度 */
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+
+            top: -90px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            object-fit: cover;
+            transition: opacity 1s ease;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 1; /* 设置透明度为0.5，可根据需要调整 */
+        }
+
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+
+    </style>
+
+
+    <div class="ftco-blocks-cover-1">
+        <div class="slideshow-container">
+
+            <div class="slide"
+                 style="background-image: url('../static/images/112.png');background-color: rgba(0, 0, 0, 0.1);background-blend-mode: multiply;">
+
+            </div>
+
+            <div class="slide"
+                 style="background-image: url('../static/images/113.png');background-color: rgba(0, 0, 0, 0.2);background-blend-mode: multiply;">
+
+            </div>
+
+            <div class="slide"
+                 style="background-image: url('../static/images/114.png');background-color: rgba(0, 0, 0, 0.2);background-blend-mode: multiply;">
+
+            </div>
+            <div class="slide"
+                 style="background-image: url('../static/images/115.png');background-color: rgba(0, 0, 0, 0.2);background-blend-mode: multiply;">
+
+            </div>
+            <div class="slide"
+                 style="background-image: url('../static/images/116.png');background-color: rgba(0, 0, 0, 0.2);background-blend-mode: multiply;">
+
+            </div>
+            <a class="prev" onclick="prevSlide()">&#10094;</a>
+            <a class="next" onclick="nextSlide()">&#10095;</a>
+
+
+            <div class="container" style="padding-top: 200px;">
+                <div class="row align-items-center justify-content-center text-center">
+
+                    <p data-aos="fade-up" style="font-size: 70px;color: white;padding-bottom: 0px">
+                        Welcome to <br>
+                        DNA storage simulation platform
+                        <br>
+                        ⭣
+
+                    </p>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="site-section bg-light" id="services-section">
+        <div style="width:100%;height:100%;padding-right: 0px;padding-left: 0px">
+
+            <div class="row mb-5 justify-content-center">
+                <div class="col-md-% text-center">
+                    <div class="block-heading-1">
+                        <h2>Function List</h2>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="width: 100%">
+
+
+                <div class="text-center col-md-3 block__35630 function-block" data-title="Encode" data-content-id="modal-content-1">
+                    <div class="icon mb-0">
+                        <span><img src="../static/images/搜索.png" style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                    <h3 class="mb-3" style="font-size: 1.5vw;">ENCODE MODULE</h3>
+                    <p style="font-size: 1.2vw;">Click me to view the introduction to Encode</p>
+                </div>
+
+                <div class="text-center col-md-3 block__35630 function-block" data-title="Simulate" data-content-id="modal-content-2">
+                    <div class="icon mb-0">
+                        <span><img src="../static/images/地图手册.png" style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                    <h3  class="mb-3" style="font-size: 1.5vw;">Simulate MODULE</h3>
+                    <p>Click me to view the introduction to Simulate DNA Storage channel</p>
+                </div>
+
+                <div class="text-center col-md-3 block__35630 function-block" data-title="Decode" data-content-id="modal-content-3">
+                    <div class="icon mb-0">
+                        <span><img src="../static/images/地图.png" style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                     <h3 class="mb-3" style="font-size: 1.5vw;">DECODE MODULE</h3>
+                    <p style="font-size: 1.2vw;">Click me to view the introduction to Decode</p>
+                </div>
+
+                <div class="text-center col-md-3 block__35630 function-block" data-title="Evaluate" data-content-id="modal-content-4">
+                    <div class="icon mb-0">
+                        <span><img src="../static/images/灯塔.png" style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                     <h3 class="mb-3" style="font-size: 1.5vw;">EVALUATE MODULE</h3>
+                    <p style="font-size: 1.2vw;">Click me to view the introduction to Evaluate</p>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+    <!-- 功能详情内容（默认隐藏） -->
+    <div id="modal-content-1" style="display: none;">
+        <p><strong>图谱展示：</strong> 展示中药材之间的图谱关系，支持节点点击查看详情、缩放、平移等交互操作。</p>
+    </div>
+
+    <div id="modal-content-2" style="display: none;">
+        <p><strong>图谱搜索：</strong> 支持输入中药材名称后，自动高亮并展示与之相关的实体图谱结构，图形化更直观。</p>
+    </div>
+
+    <div id="modal-content-3" style="display: none;">
+        <p><strong>知识检索：</strong> 关键词、拼音、别名等方式搜索中药材，快速获取药性、功效、归经等专业资料。</p>
+    </div>
+
+    <div id="modal-content-4" style="display: none;">
+        <p><strong>图像检索：</strong> 上传或拍摄药材图片，使用图像识别技术自动匹配中药材种类。</p>
+    </div>
+
+
+    <!-- Modal 弹窗 -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="info_name">功能详情</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="关闭">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="info">
+                    <!-- 内容将由 JS 注入 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // 添加事件监听器以响应用户点击
+        document.querySelector('.prev').addEventListener('click', previousSlide);
+        document.querySelector('.next').addEventListener('click', nextSlide);
+
+        showSlide(currentSlide);
+        setInterval(nextSlide, 3000);
+
+        document.querySelectorAll('.function-block').forEach(function (block) {
+            block.addEventListener('click', function () {
+                const title = this.getAttribute('data-title');
+                const contentId = this.getAttribute('data-content-id');
+                const contentHtml = document.getElementById(contentId).innerHTML;
+
+                document.getElementById('info_name').innerText = title;
+                document.getElementById('info').innerHTML = contentHtml;
+
+                $('#exampleModal').modal('show');
+            });
+        });
+    </script>
+
+
+{% endblock %}

@@ -1,0 +1,1390 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+{% block link %}
+    {#        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">#}
+    <link rel="stylesheet"
+          href="{% static 'css/all.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+{% endblock %}
+{% block css %}
+
+    /* 调整 Cluster Confirm Modal 的整体字体大小 */
+    #clusterConfirmModal .modal-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    }
+
+    #clusterConfirmModal .modal-body {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    }
+
+    #clusterConfirmModal ul#clusterModalParams li {
+    font-size: 1.05rem;
+    margin-bottom: 0.3rem;
+    }
+
+    .section-header {
+    font-weight: bold;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    }
+    .section-header i {
+    color: #007bff;
+    margin-right: 8px;
+    font-size: 1.2em;
+    }
+    .section-divider {
+    border-top: 1px solid #ddd;
+    margin-top: -0.3rem;
+    margin-bottom: 1rem;
+    }
+    .section-box {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1rem 1.5rem;
+    background-color: #fff;
+    }
+    .simulation-label {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    {#    不会小于 0.9rem，也不会大于 1.1rem。#}
+    font-weight: 500;
+    }
+    .form-check-input {
+    transform: scale(1.2);
+    margin-right: 6px;
+    }
+
+    :root {
+    --primary-blue: #007bff;
+    --primary-blue-hover: #0056b3;
+    --text-dark: #212529;
+    --text-light: #6c757d;
+    --bg-light: #f8f9fa;
+    --border-color: #dee2e6;
+    }
+
+    body {
+    background-color: #fff;
+    color: var(--text-dark);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container.my-5 {
+    max-width: 80vw;
+    width: 100%;
+
+    background-color: #fdfdfd; /* 或者 #f8f9fa，比纯白柔和 */
+    padding: 4rem 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease;
+    }
+    .page-title {
+    color: var(--primary-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 2rem;
+    user-select: none;
+    }
+
+    .section-title {
+    background-color: rgba(0, 123, 255, 0.2); /* 加一点淡蓝底 */
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    user-select: none;
+    }
+
+
+    .section-title .fa {
+    color: var(--primary-blue);
+    margin-right: 10px;
+    }
+
+    .form-label.parameter {
+    font-weight: 500;
+    font-size: 1.2em;
+    color: var(--text-dark); /* 原来是 text-light */
+    user-select: none;
+    }
+
+    .form-control {
+
+    height: 2.5rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    font-family: inherit;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+
+    .form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+    }
+
+
+    .btn-main {
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    }
+.btn-red {
+    background-color: #dc3545; /* Bootstrap 危险色 */
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3); /* 红色阴影 */
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+}
+
+.btn-red:hover {
+    background-color: #bb2d3b; /* 深红 hover 色 */
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+}
+    .btn-main:hover:not(:disabled) {
+    background-color: var(--primary-blue-hover);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+    color: white;
+    }
+
+    .btn-main:disabled {
+    background-color: #6c757d;
+    color: white;
+    cursor: not-allowed;
+    box-shadow: none;
+    }
+
+    /* 进度条默认Bootstrap 4样式即可 */
+    .progress-bar {
+    background-color: var(--primary-blue);
+    transition: width 0.4s ease;
+    }
+
+    /* 预览区域等样式保持不变 */
+
+
+    .preview-area {
+    min-height: 100px; /* 初始高度更小 */
+    max-height: 400px; /* 预览框最大高度 */
+    max-width: 100%;
+    background-color: var(--bg-light);
+    border: 1px dashed var(--border-color);
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-style: italic;
+    overflow-y: auto; /* 内容超出可滚动 */
+    padding: 1rem;
+    transition: height 0.3s ease;
+    user-select: text;
+    }
+
+    .preview-area img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 4px;
+    object-fit: contain;
+    user-select: none;
+    }
+
+    .preview-area pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-dark);
+    max-height: 250px;
+    overflow-y: auto;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 1.2rem;
+    user-select: text;
+    }
+
+    .btn-main {
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    }
+
+    .btn-main:hover:not(:disabled) {
+    background-color: var(--primary-blue-hover);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+    color: white;
+    }
+
+    .btn-main:disabled {
+    background-color: #6c757d;
+    color: white;
+    cursor: not-allowed;
+    box-shadow: none;
+    }
+
+    .progress-bar {
+    background-color: var(--primary-blue);
+    transition: width 0.4s ease;
+    }
+
+
+
+{% endblock %}
+{% block content %}
+
+    <div style="background-color: #f1f3f5; padding: 2rem 0;height: 100% ;min-height:100vh">
+
+        <div class="container my-5">
+
+            <h1 class="text-center" data-aos="fade-up"
+                style="font-size: 3vw;font-family: Arial;color: #007bff!important;">
+                DNA Decoding Module
+            </h1>
+            <form action="{% url 'decode' %}" method="post" enctype="multipart/form-data">
+                <!-- 这里只是一个示例，实际解码后可能不需要返回编码页面 -->
+                {% csrf_token %}
+
+                {#    cluster method#}
+                <div class="mb-5">
+                    <h5 class="section-title mb-3"><i class="fa fa-object-group"></i>cluster</h5>
+                    <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <label for="cluster_method" class="form-label parameter">Cluster method</label>
+                                <select id="cluster_method"
+                                        name="cluster_method"
+                                        class="form-control"
+                                        style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                        {% if cluster %}disabled="true"{% endif %}>
+                                    <option {% if base.cluster_method == 'index' %}selected{% endif %} value="index">index</option>
+                                    <option {% if base.cluster_method == 'reference' %}selected{% endif %} value="reference">reference sequence</option>
+                                    <option {% if base.cluster_method == 'no' %}selected{% endif %} value="no">I don't need cluster</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6" id="index_length_div" style="display: none;">
+                                <label for="index_length" class="form-label parameter">Index length</label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="index_length"
+                                       name="index_length"
+                                       value="{{ base.index_length }}"
+                                       style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                       {% if cluster %}disabled="true"{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                {#    reconstruct#}
+                <div class="mb-5">
+                    <h5 class="section-title mb-3"><i class="fa fa-sync"></i>Reconstruct</h5>
+                    <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <label for="reconstruct" class="form-label parameter">Reconstruct</label>
+                                <select id="reconstruct"
+                                        name="reconstruct"
+                                        class="form-control"
+                                        style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                        {% if cluster %}disabled="true"{% endif %}>
+                                    <option {% if base.reconstruct == 'yes' %}selected{% endif %} value="yes">yes (use a consensus for decode)</option>
+                                    <option {% if base.reconstruct == 'no' %}selected{% endif %} value="no">no (use multiple sequences for decode)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="copy_number" class="form-label parameter">MSA copy num</label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="copy_number"
+                                       name="copy_number"
+                                       value="{{ base.copy_number }}"
+                                       style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                       {% if cluster %}disabled="true"{% endif %}>
+                            </div>
+
+                            <div class="col-md-6" id="rebuild_method_isshow" style="display: none;">
+                                <label for="rebuild_method" class="form-label parameter">Rebuild method</label>
+                                <select id="rebuild_method"
+                                        name="rebuild_method"
+                                        class="form-control"
+                                        style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                        {% if cluster %}disabled="true"{% endif %}>
+                                    <option {% if base.rebuild_method == 'SeqFormer' %}selected{% endif %} value="SeqFormer">SeqFormer (consensus + base confidence)</option>
+                                    <option {% if base.rebuild_method == 'bsalign' %}selected{% endif %} value="bsalign">bsalign (consensus + base confidence)</option>
+                                    <option {% if base.rebuild_method == 'BMALA' %}selected{% endif %} value="BMALA">BMALA (consensus)</option>
+                                    <option {% if base.rebuild_method == 'DivBMA' %}selected{% endif %} value="DivBMA">DivBMA (consensus)</option>
+                                    <option {% if base.rebuild_method == 'Hybrid' %}selected{% endif %} value="Hybrid">Hybrid (consensus)</option>
+                                    <option {% if base.rebuild_method == 'Iterative' %}selected{% endif %} value="Iterative">Iterative (consensus)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mt-2" id="baseconfidence_div" style="display: none; padding-top: 0.5vw">
+                            <div class="col-md-12">
+                                <label class="form-label parameter">Base confidence</label>
+                                <div class="form-check form-check-inline mt-1" style="padding-left: 1.2vw;font-size: 1.2vw">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           name="confidence"
+                                           id="confidence_yes"
+                                           value="yes"
+                                           style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                           {% if cluster %}disabled="true"{% endif %}
+                                           {% if base.confidence == 'yes' %}checked{% endif %}>
+                                    <label class="form-check-label" for="confidence_yes">Yes, I need base confidence</label>
+                                </div>
+                                <div class="form-check form-check-inline mt-1" style="font-size: 1.2vw">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           name="confidence"
+                                           id="confidence_no"
+                                           value="no"
+                                           style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                           {% if cluster %}disabled="true"{% endif %}
+                                           {% if base.confidence == 'no' %}checked{% endif %}>
+                                    <label class="form-check-label" for="confidence_no">No, I don't need base confidence</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                {#{% cluster 输入用于模拟之后的序列 %}#}
+                <div class="mb-5">
+                    <h5 class="section-title mb-3" style="">
+                        <i class="fa fa-upload"></i> UPLOAD Simulated File
+                    </h5>
+
+                    <div class="row align-items-center">
+                        <!-- 左列：上传 -->
+                        <div class="col-md-6">
+                            <div class="custom-file">
+                                <label for="inputFile_simulate"
+                                       class="form-label parameter custom-file-label"
+                                       id="fileNameLabel_simulate"
+                                       style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}">
+                                    Select file
+                                </label>
+
+                                <div class="input-group">
+                                    <input type="text" class="custom-file-input" id="forclusterfile_filename"
+                                           value="{{ forclusterfile_filename }}" hidden name="forclusterfile_filename">
+
+                                    <input type="file" class="custom-file-input" id="inputFile_simulate"
+                                           accept=".fasta,.fa,.fastq,.fq"
+                                           name="file_simulate" style="height: 3rem;
+                                            {% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                           {% if cluster %}disabled="true"{% endif %}>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-primary mt-3"
+                                    name="uploadBtn_simulate"
+                                    id="uploadBtn_simulate"
+                                    style="display: none;{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                    {% if cluster %}disabled="true"{% endif %}>
+                                Upload to Preview
+                            </button>
+
+                            <div id="uploadProgressContainer_simulate"
+                                 class="progress mt-2" style="height: 10px; display: none;">
+                                <div id="uploadProgressBar_simulate"
+                                     class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar" style="width: 0%"
+                                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+
+                        <!-- 右列：预览 -->
+                        <div class="col-md-6">
+                            <label class="form-label parameter">File Preview (Only first 100 lines shown in preview)</label>
+
+                            {% if preview_simulate %}
+                                <div id="preview_simulate" class="preview-area p-3"
+                                     style="height: 200px; overflow-y: auto;">
+                                    <pre style="white-space: pre-wrap; word-break: break-word; max-height: 100%; overflow-y: auto;">{{ preview_simulate }}</pre>
+                                </div>
+                            {% else %}
+                                <div id="preview_simulate" class="preview-area p-3"
+                                     style="height: 100px; overflow-y: auto;">
+                                    Select a file and click "Upload to Preview"
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {#{% cluster 输入参考序列%}#}
+
+                <div class="mb-5">
+                    <h5 class="section-title mb-3" style="">
+                        <i class="fa fa-upload"></i> UPLOAD Reference File (Encode outfile)
+                    </h5>
+
+                    <div class="row align-items-center">
+                        <!-- 左列：上传 -->
+                        <div class="col-md-6">
+                            <div class="custom-file">
+                                <label for="inputFile_ref"
+                                       class="form-label parameter custom-file-label"
+                                       id="fileNameLabel_ref"
+                                       style="{% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}">
+                                    Select file
+                                </label>
+
+                                <div class="input-group">
+                                    <input type="text" class="custom-file-input" id="encode_outfile_filename"
+                                           value="{{ encode_outfile_filename }}" hidden name="encode_outfile_filename">
+
+                                    <input type="file" class="custom-file-input" id="inputFile_ref"
+                                           accept=".fasta,.fa,.fastq,.fq"
+                                           name="ref_or_index" style="height: 3rem;
+                                            {% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                           {% if cluster %}disabled="true"{% endif %}>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-primary mt-3"
+                                    id="uploadBtn_ref" style="display: none;
+                                    {% if cluster %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                    {% if cluster %}disabled="true"{% endif %}>
+                                Upload to Preview
+                            </button>
+
+                            <div id="uploadProgressContainer_ref"
+                                 class="progress mt-2" style="height: 10px; display: none;">
+                                <div id="uploadProgressBar_ref"
+                                     class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar" style="width: 0%"
+                                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+
+                        <!-- 右列：预览 -->
+                        <div class="col-md-6">
+                            <label class="form-label parameter">File Preview (Only first 100 lines shown in preview)</label>
+
+                            {% if preview_ref %}
+                                <div id="preview_ref" class="preview-area p-3"
+                                     style="height: 200px; overflow-y: auto;">
+                                    <pre style="white-space: pre-wrap; word-break: break-word; max-height: 100%; overflow-y: auto;">{{ preview_ref }}</pre>
+                                </div>
+                            {% else %}
+                                <div id="preview_ref" class="preview-area p-3"
+                                     style="height: 100px; overflow-y: auto;">
+                                    Select a file and click "Upload to Preview"
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {# 提交去cluster #}
+                <!-- Cluster Start 显示按钮 -->
+                <button type="button" id="clusterTriggerBtn"
+                        class="btn btn-main"
+
+                        {% if cluster %}disabled="true"{% endif %}>
+                    <i class="fa fa-play-circle"></i> Cluster Start
+                </button>
+
+                <!-- Cluster Start 提交按钮（隐藏） -->
+                <button type="submit" id="clusterBtn" name="clusterBtn"
+                        class="btn btn-main"
+                        style="display: none;"
+                        {% if cluster %}disabled="true"{% endif %}
+                        formaction="{% url 'decode' %}#decodefile">
+                    <i class="fa fa-play-circle"></i> Cluster Start
+                </button>
+
+
+
+                {% if cluster %}
+                    <!-- 视觉分隔：完成聚类后的提示 -->
+                    <div class="my-5 text-center">
+                        <hr class="mb-4" style="border-top: 2px dashed #dee2e6;">
+                        <div class="alert alert-info d-inline-block px-4 py-3 shadow-sm" style="border-radius: 0.5rem;">
+                            <i class="fa fa-arrow-down me-2"></i>
+                            <strong>Clustering complete!</strong> Next, upload your files to start decoding.
+                        </div>
+                        <hr class="mt-4" style="border-top: 2px dashed #dee2e6;">
+                    </div>
+                    <span id="decodefile"></span>
+                    {#输入用户解码的文件 #}
+                    <div class="mb-5">
+                        <h5 class="section-title mb-3"><i class="fa fa-upload"></i>Decode File</h5>
+
+                        <div class="row align-items-center">
+                            <!-- 左列：上传 -->
+                            <div class="col-md-6">
+                                <div class="custom-file">
+                                    <label for="inputFile_decode"
+                                           class="form-label parameter custom-file-label"
+                                           id="fileNameLabel_decode">Select file</label>
+
+                                    <div class="input-group">
+                                        <!-- 隐藏字段保存服务器端已有文件名 -->
+                                        <input type="text" class="custom-file-input" id="file_for_decode"
+                                               value="{{ file_for_decode }}" hidden name="file_for_decode">
+
+                                        <input type="file" class="custom-file-input" id="inputFile_decode"
+                                               name="file" accept=".fasta,.fa,.fastq,.fq" style="height: 3rem;
+       background-color:#e9ecef; color:#6c757d; cursor:not-allowed;" disabled>
+
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary mt-3 "
+                                        id="uploadBtn_decode" style="display: none; background-color:#e9ecef; color:#6c757d; cursor:not-allowed;" disabled>
+                                    Upload to Preview
+                                </button>
+
+                                <div id="uploadProgressContainer_decode"
+                                     class="progress mt-2" style="height: 10px; display: none;">
+                                    <div id="uploadProgressBar_decode"
+                                         class="progress-bar progress-bar-striped progress-bar-animated"
+                                         role="progressbar" style="width: 0%"
+                                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <!-- 右列：预览 -->
+                            <div class="col-md-6">
+                                <label class="form-label parameter">File Preview (Only first 100 lines shown in preview)</label>
+
+                                {% if preview_decode %}
+                                    <div id="preview_decode" class="preview-area p-3"
+                                         style="height: 200px; overflow-y: auto;">
+                    <pre style="white-space: pre-wrap; word-break: break-word; max-height: 100%; overflow-y: auto;">
+                        {{ preview_decode }}
+                    </pre>
+                                    </div>
+                                {% else %}
+                                    <div id="preview_decode" class="preview-area p-3"
+                                         style="height: 100px; overflow-y: auto;">
+                                        Select a file and click "Upload to Preview"
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {# 输入原始的文件#}
+                    <div class="mb-5">
+                        <h5 class="section-title mb-3"><i class="fa fa-upload"></i> Upload Origin File</h5>
+
+                        <div class="row align-items-center">
+                            <!-- 左列：上传 -->
+                            <div class="col-md-6">
+                                <div class="custom-file">
+                                    <label for="inputFile_origin"
+                                           class="form-label parameter custom-file-label"
+                                           id="fileNameLabel_origin"
+                                           style="{% if decoded_data %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}">
+                                        Select file
+                                    </label>
+
+                                    <div class="input-group">
+                                        <input type="text" class="custom-file-input" id="ori_filename"
+                                               value="{{ ori_filename }}" hidden name="ori_filename">
+
+                                        <input type="file" class="custom-file-input" id="inputFile_origin"
+                                               name="file"
+                                               style="height: 3rem;{% if decoded_data %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                               {% if decoded_data %}disabled="true"{% endif %}>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary mt-3"
+                                        id="uploadBtn_origin"
+                                        style="display: none;{% if decoded_data %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                        {% if decoded_data %}disabled="true"{% endif %}>
+                                    Upload to Preview
+                                </button>
+
+                                <div id="uploadProgressContainer_origin"
+                                     class="progress mt-2" style="height: 10px; display: none;">
+                                    <div id="uploadProgressBar_origin"
+                                         class="progress-bar progress-bar-striped progress-bar-animated"
+                                         role="progressbar" style="width: 0%"
+                                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <!-- 右列：预览 -->
+                            <div class="col-md-6">
+                                <label class="form-label parameter">File Preview</label>
+                                <div class="preview-area p-3 border rounded" id="preview_origin" style="max-height: 15vw; overflow-y: auto;">
+                                    {% if preview_origin.success %}
+                                        {% if preview_origin.file_type == "image" %}
+                                            <img src="{{ preview_origin.file_content }}" alt="Preview Image" style="max-height: 12vw;">
+                                        {% elif preview_origin.file_type == "video" %}
+                                            <video controls style="max-height: 12vw;">
+                                                <source src="{{ preview_origin.file_content }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        {% elif preview_origin.file_type == "text" %}
+                                            <pre style="white-space: pre-wrap; font-size: 0.9rem;">{{ preview_origin.file_content }}</pre>
+                                        {% else %}
+                                            <p class="text-danger">Unsupported file type for preview.</p>
+                                        {% endif %}
+                                    {% else %}
+                                        <p class="text-muted">No preview available.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {#  选择解码的方法#}
+
+                    <div class="mb-5">
+                        <h5 class="section-title mb-3"><i class="fa fa-cogs"></i> Decode Method</h5>
+                        <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                            <div class="row mb-3">
+                                <!-- 解码算法 -->
+                                <div class="col-md-6">
+                                    <label for="method" class="form-label">Algorithm</label>
+                                    <select class="form-control"
+                                            id="method"
+                                            name="method"
+                                            style="{% if decoded_data %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                            {% if decoded_data %}disabled="true"{% endif %}>
+                                        <option value="fountain" {% if base.method == "fountain" %}selected{% endif %}>DNA Fountain</option>
+                                        <option value="YYC" {% if base.method == "YYC" %}selected{% endif %}>YYC</option>
+                                        <option value="derrick" {% if base.method == "derrick" %}selected{% endif %}>Derrick</option>
+                                        <option value="PolarCode" {% if base.method == "PolarCode" %}selected{% endif %}>PolarCode</option>
+                                        <option value="hedges" {% if base.method == "hedges" %}selected{% endif %}>Hedges</option>
+                                    </select>
+                                </div>
+
+                                <!-- 决策方式 -->
+                                <div class="col-md-6">
+                                    <label for="decision" class="form-label">Decision</label>
+                                    <select id="decision"
+                                            name="decision"
+                                            class="form-control"
+                                            style="{% if decoded_data %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+                                            {% if decoded_data %}disabled="true"{% endif %}>
+                                        <option value="hard" {% if base.decision == 'hard' %}selected{% endif %}>Hard Decision</option>
+                                        <option value="soft"
+                                                {% if base.reconstruct == 'no' or base.confidence == 'no' %}hidden{% endif %}
+                                                {% if base.decision == 'soft' %}selected{% endif %}>Soft Decision</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# 选择copynum#}
+                    <div class="mb-5">
+                        <h5 class="section-title mb-3"><i class="fa fa-cogs"></i> Decode Settings</h5>
+                        <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+
+                            <!-- 最大 copy number -->
+{#                            <div class="row mb-3">#}
+{#                                <div class="col-md-6">#}
+{#                                    <label for="copy_number_decode" class="form-label">Max Copy Num</label>#}
+{#                                    <input type="number"#}
+{#                                           class="form-control"#}
+{#                                           id="copy_number_decode"#}
+{#                                           name="copy_number_decode"#}
+{#                                           value="{{ base.copy_number }}"#}
+{#                                           style="{% if decoded_data %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"#}
+{#                                           {% if decoded_data %}disabled="true"{% endif %}>#}
+{#                                </div>#}
+{#                            </div>#}
+                                <div class="row mb-3">
+    <div class="col-md-6">
+        <label for="copy_number_decode" class="form-label">Max Copy Num</label>
+        <input type="number"
+               class="form-control"
+               id="copy_number_decode"
+               name="copy_number_decode"
+               value="{{ base.copy_number }}"
+               style="{% if decoded_data or need_copy_num == 1 %}background-color:#e9ecef;color:#6c757d;cursor:not-allowed;{% endif %}"
+               {% if decoded_data or need_copy_num == 1 %}disabled="true"{% endif %}>
+    </div>
+</div>
+
+
+
+
+                            <!-- 加载动画 -->
+                            <div id="loading-decode" class="text-center mt-3" style="display: none;">
+                                <img src="{% static 'images/loading.gif' %}" alt="Loading..." style="width: 60px;">
+                                <p class="fw-bold">Decoding in progress...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="decodeTriggerBtn" class="btn btn-main"
+                            {% if decoded_data %}disabled="true"{% endif %} >
+                        <i class="fa fa-play-circle"></i> Start Decode
+                    </button>
+                    <button type="submit" id="decodeBtn" name="decodeBtn"
+                            class="btn btn-main w-100 mt-2"
+                            style="display: none;" {% if decoded_data %}disabled="true"{% endif %}
+                            formaction="{% url 'decode' %}#decoderesult">
+                        <i class="fa fa-play-circle"></i> Start Decode
+                    </button>
+                    <button type="submit"
+                            id="redoCluster"
+                            name="redoCluster"
+                            class="btn btn-red"
+                            formaction="{% url 'decode' %}#clusterform">
+                        <i class="fa fa-redo"></i> Re-cluster
+                    </button>
+                    <div style="padding-bottom: 2vw">
+                    </div>
+
+                {% endif %}
+
+                {% if decode %}
+                    <span id="decoderesult"></span>
+                    <div class="mb-5">
+                        <h5 class="section-title mb-3"><i class="fa fa-cogs"></i> Decode Result</h5>
+                        <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                            {% if decoded_data %}
+                                <input hidden value="{{ decoded_data }}" name="sequencing_data"/>
+                                <div id="encode-info1">
+                                    <h5 class="card-title">Decode result:</h5>
+                                    <div class="mt-2" style="font-size: 1rem;">
+                                        {% if decoded_data.code == 0 %}
+                                            <div>decode cost time：{{ decoded_data.decode_time }}</div>
+                                            {# <div>decode bit_rev：{{ decoded_data.bit_rev }}</div> #}
+                                            {# <div>decode seq_rev：{{ decoded_data.seq_rev }}</div> #}
+                                            <div>decode bad bits：{{ decoded_data.badbits }}</div>
+                                            <div>decode bit num：{{ decoded_data.allbits }}</div>
+                                            <div>decode bit recovery：{{ decoded_data.bits_recov }}</div>
+                                        {% else %}
+                                            <div>decode fail.</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <a href="{% url 'download_file' mode='decode' %}"
+                                           {% if decoded_data.code != 0 %}hidden{% endif %}
+                                           class="btn btn-success btn-sm">
+                                            <i class="fa fa-download"></i> Download Decode Result
+                                        </a>
+                                        <a href="{% url 'download_file' mode='evaluate' %}"
+                                           {% if decoded_data.code != 0 %}hidden{% endif %}
+                                           class="btn btn-success btn-sm">
+                                            <i class="fa fa-download"></i> Download Evaluation indicators
+                                        </a>
+
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No decode result available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 重新开始按钮 -->
+
+
+                         <button type="submit" name="redoDecode" id="redoDecode"
+                                                class="btn btn-red"  formaction="{% url 'decode' %}#decodefile">
+                                            <i class="fa fa-redo"></i> Re-decode
+                         </button>
+
+
+                          <button type="submit" name="restart" id="next"
+                                                class="btn btn-red"  >
+                                            <i class="fa fa-redo"></i> Restart the entire process
+                                        </button>
+
+
+                {% endif %}
+
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                    <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-dark" id="errorModalBody">
+                    <!-- 错误信息会被动态插入这里 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cluster Confirm Modal -->
+    <div class="modal fade" id="clusterConfirmModal" tabindex="-1" aria-labelledby="clusterConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clusterConfirmModalLabel">Confirm Clustering Parameters</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Simulated File:</strong> <span id="clusterModalFilename"></span></p>
+                    <p><strong>Cluster Method:</strong> <span id="clusterModalMethod"></span></p>
+                    <p><strong>Parameters:</strong></p>
+                    <ul id="clusterModalParams"></ul>
+                </div>
+                <div id="cluster-loading-container" class="text-center mt-3" style="display: none;">
+                    <p style="font-weight: bold;">Clustering in progress...</p>
+                    <div class="progress" style="height: 20px;">
+                        <div id="clusterProgressBar"
+                             class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                             role="progressbar"
+                             style="width: 0%;"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            0%
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirmClusterSubmit" class="btn btn-primary">Confirm and Start</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decode Confirm Modal -->
+    <div class="modal fade" id="decodeConfirmModal" tabindex="-1" aria-labelledby="decodeConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="decodeConfirmModalLabel">Confirm Decode Parameters</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Decode File:</strong> <span id="decodeModalFilename"></span></p>
+                    <p><strong>Origin File:</strong> <span id="decodeModalOrigin"></span></p>
+                    <p><strong>Algorithm:</strong> <span id="decodeModalMethod"></span></p>
+                    <p><strong>Decision:</strong> <span id="decodeModalDecision"></span></p>
+                    <p><strong>Max Copy Num:</strong> <span id="decodeModalCopyNum"></span></p>
+                </div>
+
+                <div id="decode-loading-container" class="text-center mt-3" style="display: none;">
+                    <p style="font-weight: bold;">Decoding in progress...</p>
+                    <div class="progress" style="height: 20px;">
+                        <div id="decodeProgressBar"
+                             class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                             role="progressbar"
+                             style="width: 0%;"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            0%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirmDecodeSubmit" class="btn btn-primary">Confirm and Start Decode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+    {#          <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>#}
+     <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
+
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+
+    <script>
+
+    function init_ori_FileUpload(prefix) {
+    // 通过 prefix 拼接选择器
+    const uploadBtn = $('#uploadBtn_' + prefix);
+    const inputFile = $('#inputFile_' + prefix);
+    const fileNameLabel = $('#fileNameLabel_' + prefix);
+    const previewContainer = $('#preview_' + prefix);
+    const progressContainer = $('#uploadProgressContainer_' + prefix);
+    const progressBar = $('#uploadProgressBar_' + prefix);
+
+    inputFile.on('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) {
+            // 用户取消选择，不做处理
+            return;
+        }
+
+        // 显示准备信息和进度条
+        previewContainer.html('Preparing upload preview...');
+        progressContainer.show();
+        fileNameLabel.text(file.name);
+        progressBar.width('0%').text('0%');
+
+        // 上传预览
+        triggerPreviewUpload(file);
+
+        // 清空 input，允许再次选择同名文件也触发 change
+        inputFile.val('');
+    });
+
+    function triggerPreviewUpload(file) {
+        const formData = new FormData();
+        formData.append('file_for_preview', file);
+        formData.append('uploader_prefix', prefix); // 传前缀给后端区分来源
+
+        const uploadUrl = "{% url 'upload_for_preview' %}";
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', uploadUrl, true);
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressContainer.show();
+                progressBar.width(percentComplete + '%');
+                progressBar.text(Math.round(percentComplete) + '%');
+            }
+        };
+
+        xhr.onerror = function () {
+            alert('An error occurred during the upload. Please try again.');
+            progressContainer.hide();
+        };
+
+        xhr.onload = function () {
+            progressContainer.hide();
+            const response = JSON.parse(xhr.responseText || '{}');
+            if (xhr.status === 200 && response.success) {
+                const fileType = response.file_type;
+                const fileContent = response.file_content;
+                const fileName = response.file_name || file.name;
+
+                previewContainer.html('');
+                if (fileType.startsWith('image/')) {
+                    previewContainer.append($('<img>').attr('src', fileContent).css({maxHeight: '12vw'}));
+                } else if (fileType.startsWith('video/')) {
+                    const video = $('<video controls>').css({maxHeight: '12vw'})
+                        .append($('<source>').attr('src', fileContent).attr('type', fileType));
+                    previewContainer.append(video);
+                } else if (fileType.startsWith('text/') || fileType === 'text') {
+                    // 支持 FASTA / FASTQ 等
+                    previewContainer.append($('<pre>').css({
+                        whiteSpace: 'pre-wrap',
+                        fontSize: '0.9rem'
+                    }).text(fileContent));
+                } else {
+                    previewContainer.text(`'${fileName}' is a binary file. No preview available.`);
+                }
+
+            } else {
+                previewContainer.text('Error: ' + (response.error || 'Server error'));
+            }
+        };
+
+        xhr.send(formData);
+    }
+}
+    function initUploader(prefix) {
+    const uploadBtn = $(`#uploadBtn_${prefix}`);
+    const inputFile = $(`#inputFile_${prefix}`);
+    const previewContainer = $(`#preview_${prefix}`);
+    const progressContainer = $(`#uploadProgressContainer_${prefix}`);
+    const progressBar = $(`#uploadProgressBar_${prefix}`);
+    const fileLabel = $(`#fileNameLabel_${prefix}`);
+
+    inputFile.on('change', function (e) {
+        if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            uploadBtn.click();
+            fileLabel.text(fileName);
+            progressBar.width('0%').text('0%');
+        } else {
+            uploadBtn.hide();
+            previewContainer.text('No file selected.');
+        }
+    });
+
+    uploadBtn.on('click', function () {
+        const file = inputFile[0].files[0];
+        if (!file) {
+            alert("Please select a file first.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file_for_preview', file);
+        formData.append('uploader_prefix', prefix);
+        const uploadUrl = "{% url 'preview_fasta_file_for_cluster_and_reconstruct' %}";
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', uploadUrl, true);
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressContainer.show();
+                progressBar.width(percentComplete + '%');
+                progressBar.text(Math.round(percentComplete) + '%');
+            }
+        };
+
+        xhr.onerror = function () {
+            alert('An error occurred during the upload. Please try again.');
+            progressContainer.hide();
+        };
+
+        xhr.onload = function () {
+            progressContainer.hide();
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                previewContainer.html('');
+
+                if (response.success) {
+                    const fileType = response.file_type;
+                    const fileUrl = response.file_url;  // 后端返回可访问URL
+
+                    previewContainer[0].style.setProperty('height', '200px', 'important');
+
+                    if (fileType.startsWith('image/')) {
+                        const img = $('<img>').attr('src', fileUrl).addClass('img-fluid');
+                        previewContainer.append(img);
+                    } else if (fileType.startsWith('video/')) {
+                        const video = $('<video controls width="100%">').attr('src', fileUrl);
+                        previewContainer.append(video);
+                    } else if (fileType.startsWith('audio/')) {
+                        const audio = $('<audio controls>').attr('src', fileUrl);
+                        previewContainer.append(audio);
+                    } else if (fileType.startsWith('text/')) {
+                        const pre = $('<pre>').text(response.file_content);
+                        previewContainer.append(pre);
+                    } else {
+                        previewContainer.text(`'${response.file_name}' uploaded. No preview available.`);
+                    }
+                } else {
+                    previewContainer.text('Error: ' + response.error);
+                }
+            } else {
+                previewContainer.text('Server error: Could not process the file.');
+            }
+        };
+
+        xhr.send(formData);
+    });
+}
+
+
+  function initDecodeConfirm() {
+    // 点击 start decode 弹出 modal
+    $('#decodeTriggerBtn').click(function () {
+        const filename = $('#fileNameLabel_decode').text() || 'N/A';
+        const origin = $('#fileNameLabel_origin').text() || 'N/A';
+        const method = $('#method').val();
+        const decision = $('#decision').val();
+        const copyNum = $('#copy_number_decode').val() || 'N/A';
+
+        $('#decodeModalFilename').text(filename);
+        $('#decodeModalOrigin').text(origin);
+        $('#decodeModalMethod').text(method);
+        $('#decodeModalDecision').text(decision);
+        $('#decodeModalCopyNum').text(copyNum);
+
+        new bootstrap.Modal(document.getElementById('decodeConfirmModal')).show();
+    });
+
+    // 确认提交
+    $('#confirmDecodeSubmit').click(function () {
+        // 先触发表单提交
+        $('#decodeBtn').click();
+
+        // 禁用所有输入并改成灰色样式
+        $('input, select').prop('disabled', true).css({
+            backgroundColor: '#e9ecef',
+            color: '#6c757d',
+            cursor: 'not-allowed'
+        });
+
+        // 显示进度条
+        $('#decode-loading-container').show();
+        const progressBar = $('#decodeProgressBar');
+        progressBar.width('0%').text('0%');
+
+        // 模拟进度条（提交后可自行替换为真实后台进度）
+        let progress = 0;
+        const intervalId = setInterval(() => {
+            if (progress < 95) {
+                progress += Math.random() * 5;
+                progressBar.width(progress + '%').text(Math.floor(progress) + '%');
+            } else {
+                clearInterval(intervalId);
+                progressBar.width('100%').text('100%');
+            }
+        }, 100);
+    });
+}
+
+    function initFilenameLabel(hiddenInputId, labelId) {
+        const val = document.getElementById(hiddenInputId).value;
+        if (val) {
+            const label = document.getElementById(labelId);
+            label.textContent = val;
+            label.classList.add('selected');
+        }
+    }
+
+    function bindFilenameInputs() {
+        $('#file2').on('change', function (e) {
+            $("#fileNameLabel2").html(e.target.files[0].name);
+        });
+        $('#file3').on('change', function (e) {
+            $("#fileNameLabel3").html(e.target.files[0].name);
+        });
+    }
+
+    function scrollPositionPersistence() {
+        const STORAGE_KEY = 'scrollPosition';
+
+        window.addEventListener('scroll', function () {
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            sessionStorage.setItem(STORAGE_KEY, scrollPosition);
+        });
+
+        window.addEventListener('load', function () {
+            const scrollPosition = sessionStorage.getItem(STORAGE_KEY);
+            if (scrollPosition) {
+                window.scrollTo(0, parseInt(scrollPosition, 10));
+            }
+        });
+    }
+
+    function bindClusterReconstructChange() {
+        $('#cluster_method').change(function () {
+            var cluster = $(this).val();
+            const disabled = cluster === 'no';
+
+            $('#inputFile, #cluster_file, #rebuild_method, #reconstruct, #confidence_yes, #confidence_no')
+                .prop('disabled', disabled);
+
+            if (cluster === 'index') {
+                $('#index_length_div').show();
+            } else {
+                $('#index_length_div').hide();
+            }
+        });
+
+        $('#reconstruct').change(function () {
+            var reconstruct = $(this).val();
+            if (reconstruct === 'yes') {
+                $('#rebuild_method_isshow').show();
+
+                const rebuildMethod = $('#rebuild_method').val();
+                if (rebuildMethod === 'SeqFormer' || rebuildMethod === 'bsalign') {
+                    $('#baseconfidence_div').show();
+                    $('#copy_num').show();
+                }
+            } else {
+                $('#rebuild_method_isshow, #baseconfidence_div, #copy_num').hide();
+            }
+        });
+
+        $('#rebuild_method').change(function () {
+            var method = $(this).val();
+            if (method === 'SeqFormer' || method === 'bsalign') {
+                $('#baseconfidence_div, #copy_num').show();
+            } else {
+                $('#baseconfidence_div, #copy_num').hide();
+            }
+        });
+
+        $('#method').change(function () {
+            var method = $(this).val();
+            if (['fountain', 'PolarCode', 'YYC'].includes(method)) {
+                $('#decision_soft').show();
+            } else {
+                $('#decision_soft').hide();
+            }
+        });
+    }
+    {#确认之后提交，并且有一个模拟进度条#}
+    function simulateClusterProgressAndSubmit() {
+    let isProcessing = false; // 防重复标记
+
+    $('#confirmClusterSubmit').click(function () {
+        const confirmBtn = $(this);
+
+        if (isProcessing) {
+            return; // 已在处理，阻止重复点击
+        }
+        isProcessing = true;
+
+        // 1️⃣ 视觉上禁用按钮，显示处理中
+        confirmBtn.prop('disabled', true).text('Processing...');
+
+        // 2️⃣ 显示进度条
+        const loadingContainer = $('#cluster-loading-container');
+        const progressBar = $('#clusterProgressBar');
+        loadingContainer.show();
+        progressBar.width('0%').text('0%');
+
+        // 模拟进度条
+        let progress = 0;
+        let currentStep = 0;
+        const fileSizeKB = 200;  // 可根据需要动态调整
+        const level = Math.max(0, Math.ceil(Math.log2(fileSizeKB / 100)));
+        const totalDuration = 800 * Math.pow(2, level);
+        const steps = Math.floor(totalDuration / 100);
+
+        const intervalId = setInterval(() => {
+            if (currentStep < steps) {
+                currentStep++;
+                progress = Math.min(95, Math.floor((currentStep / steps) * 100));
+                progressBar.width(progress + '%').text(progress + '%').attr('aria-valuenow', progress);
+            } else {
+                clearInterval(intervalId);
+                progressBar.width('100%').text('100%').attr('aria-valuenow', 100);
+
+                // 3️⃣ 延迟触发真正提交
+                setTimeout(() => {
+                    $('#clusterBtn').click();
+                }, 300);
+            }
+        }, 100);
+    });
+}
+
+    {#clusterBtn的确认框#}
+    function initClusterConfirm() {
+    $('#clusterTriggerBtn').click(function () {
+        const filename = $('#fileNameLabel_simulate').text() || 'N/A';
+        const method = $('#cluster_method').val();
+
+        $('#clusterModalFilename').text(filename);
+        $('#clusterModalMethod').text(method);
+
+        const modalParams = $('#clusterModalParams');
+        modalParams.empty();
+
+        $('#cluster_method, #copy_number, #index_length, #reconstruct, #rebuild_method, #confidence_yes, #confidence_no')
+            .each(function () {
+                if ($(this).is(':visible')) {
+                    const label = $(`label[for="${$(this).attr('id')}"]`).text() || $(this).attr('name');
+                    const value = $(this).is(':radio') ? ($(this).is(':checked') ? $(this).val() : null) : $(this).val();
+                    if (value !== null) {
+                        modalParams.append(`<li>${label}: ${value}</li>`);
+                    }
+                }
+            });
+
+        new bootstrap.Modal(document.getElementById('clusterConfirmModal')).show();
+    });
+}
+
+    function initDefaults() {
+        var cluster = $('#cluster_method').val();
+        if (cluster !== 'no') {
+            $('#download_clusterfile').show();
+        }
+        if (cluster === 'index') {
+            $('#index_length_div').show();
+        }
+
+        var rec = $('#reconstruct').val();
+        if (rec === 'yes') {
+            $('#rebuild_method_isshow').show();
+        }
+
+        var method = $('#method').val();
+        if (['fountain', 'PolarCode', 'YYC'].includes(method)) {
+            $('#decision_soft').show();
+        } else {
+            $('#decision_soft').hide();
+        }
+    }
+    $(document).ready(function () {
+        initUploader('simulate');
+        initUploader('ref');
+        initUploader('decode');
+        {#initUploader('origin');#}
+        init_ori_FileUpload('origin')
+        initDecodeConfirm();
+
+        bindFilenameInputs();
+        scrollPositionPersistence();
+        bindClusterReconstructChange();
+        initDefaults();
+
+        initClusterConfirm();
+
+        simulateClusterProgressAndSubmit();
+if (location.hash) {
+      const el = document.querySelector(location.hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+        initFilenameLabel('forclusterfile_filename', 'fileNameLabel_simulate');
+        initFilenameLabel('encode_outfile_filename', 'fileNameLabel_ref');
+        initFilenameLabel('file_for_decode', 'fileNameLabel_decode');
+        initFilenameLabel('ori_filename', 'fileNameLabel_origin');
+    });
+    </script>
+{#    如果报错 就弹窗出来#}
+    {% if errors %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+       window.location.hash = "decodefile";
+    const errorMessage = `{{ errors|escapejs }}`;  // 转义防止 XSS
+    document.getElementById("errorModalBody").textContent = errorMessage;
+
+    const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+    modal.show();
+  });
+</script>
+{% endif %}
+
+{% endblock %}

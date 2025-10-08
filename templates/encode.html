@@ -1,0 +1,841 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block link %}
+    {#        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">#}
+
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+
+{% endblock %}
+{% block css %}
+    .btn-red {
+    background-color: #dc3545; /* Bootstrap 危险色 */
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3); /* 红色阴影 */
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    }
+    .btn-red:hover {
+    background-color: #bb2d3b; /* 深红 hover 色 */
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+    }
+
+    :root {
+    --primary-blue: #007bff;
+    --primary-blue-hover: #0056b3;
+    --text-dark: #212529;
+    --text-light: #6c757d;
+    --bg-light: #f8f9fa;
+    --border-color: #dee2e6;
+    }
+    .container.my-5 {
+    max-width: 80vw;
+    width: 100%;
+    background-color: #fdfdfd; /* 或者 #f8f9fa，比纯白柔和 */
+    padding: 4rem 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease;
+    }
+
+
+    #confirmModal .modal-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    }
+
+    #confirmModal .modal-body {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    }
+
+    #confirmModal ul#modalParams li {
+    font-size: 1.05rem;
+    margin-bottom: 0.3rem;
+    }
+
+
+    body {
+    background-color: #fff;
+    color: var(--text-dark);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-title {
+    color: var(--primary-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 2rem;
+    user-select: none;
+    }
+
+    .section-title {
+    background-color: rgba(0, 123, 255, 0.2); /* 加一点淡蓝底 */
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    user-select: none;
+    }
+
+
+    .section-title .fa {
+    color: var(--primary-blue);
+    margin-right: 10px;
+    }
+
+    .form-label.parameter {
+    font-weight: 500;
+    font-size: 1.2em;
+    color: var(--text-dark); /* 原来是 text-light */
+    user-select: none;
+    }
+
+    .form-control {
+
+    height: 2.5rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    font-family: inherit;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+
+
+
+
+
+
+    .form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+    }
+
+
+    .btn-main {
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    }
+
+
+
+
+
+    /* 进度条默认Bootstrap 4样式即可 */
+    .progress-bar {
+    background-color: var(--primary-blue);
+    transition: width 0.4s ease;
+    }
+
+    /* 预览区域等样式保持不变 */
+
+
+    .preview-area {
+    min-height: 100px; /* 初始高度更小 */
+    max-height: 400px; /* 预览框最大高度 */
+    max-width: 100%;
+    background-color: var(--bg-light);
+    border: 1px dashed var(--border-color);
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-style: italic;
+    overflow-y: auto; /* 内容超出可滚动 */
+    padding: 1rem;
+    transition: height 0.3s ease;
+    user-select: text;
+    }
+
+    .preview-area img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 4px;
+    object-fit: contain;
+    user-select: none;
+    }
+
+    .preview-area pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-dark);
+    max-height: 250px;
+    overflow-y: auto;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 1.2rem;
+    user-select: text;
+    }
+
+    .btn-main {
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    }
+
+    .btn-main:hover:not(:disabled) {
+    background-color: var(--primary-blue-hover);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+    color: white;
+    }
+
+    .btn-main:disabled {
+    background-color: #6c757d;
+    color: white;
+    cursor: not-allowed;
+    box-shadow: none;
+    }
+
+    .progress-bar {
+    background-color: var(--primary-blue);
+    transition: width 0.4s ease;
+    }
+
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div style="background-color: #f1f3f5; padding: 2rem 0;">
+
+        <div class="container my-5">
+
+
+            <h1 class="text-center" data-aos="fade-up" style="font-size: 3vw;font-family: Arial;color: #007bff!important;">
+                DNA Encoding Module
+            </h1>
+            <form id="encodeForm" action="{% url 'encode' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if errors %}
+                    <div class="alert alert-danger" role="alert">{{ errors }}</div>
+                {% endif %}
+
+                <div class="mb-5">
+                    <h5 class="section-title mb-3"><i class="fa fa-upload"></i>Input</h5>
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="custom-file">
+                                <label for="inputFile" class="form-label parameter custom-file-label" id="fileNameLabel">
+                                    {% if input_file_front %}{{ input_file_front }}{% else %}Select file{% endif %}
+                                </label>
+                                <div class="input-group">
+
+                                    <input type="text" class="custom-file-input" id="filename"
+                                           value="{{ base.filename }}" hidden
+                                           name="filename">
+                                    <input type="file" class="custom-file-input" id="inputFile"
+                                           name="file" style="height: 3rem; "
+                                    >
+                                </div>
+                            </div>
+
+                            {#                            <button type="button" class="btn btn-primary mt-3" id="uploadBtn"#}
+                            {#                                    style="display: none;">Upload to Preview#}
+                            {#                            </button>#}
+                            <div id="uploadProgressContainer" class="progress mt-2"
+                                 style="height: 10px; display: none;">
+                                <div id="uploadProgressBar"
+                                     class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+                                     aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label parameter">File Preview</label>
+                            <div class="preview-area p-3 border rounded" id="preview_encode" style="max-height: 15vw; overflow-y: auto;">
+                                {% if preview_data.success %}
+                                    {% if preview_data.file_type == "image" %}
+                                        <img src="{{ preview_data.file_content }}" alt="Preview Image" style="max-height: 12vw;">
+                                    {% elif preview_data.file_type == "video" %}
+                                        <video controls style="max-height: 12vw;">
+                                            <source src="{{ preview_data.file_content }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% elif preview_data.file_type == "text" %}
+                                        <pre style="white-space: pre-wrap; font-size: 0.9rem;">{{ preview_data.file_content }}</pre>
+                                    {% else %}
+                                        <p class="text-danger">Unsupported file type for preview.</p>
+                                    {% endif %}
+                                {% else %}
+                                    <p class="text-muted">No preview available.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <h5 class="section-title mb-3"><i class="fa fa-tasks"></i>Encode Method</h5>
+                    <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="method" class="form-label parameter">Algorithm</label>
+                                <select class="form-control" id="method" name="method"
+                                >
+                                    <option value="fountain" {% if base.method == "fountain" %}selected{% endif %}>DNA
+                                        Fountain
+                                    </option>
+                                    <option value="YYC" {% if base.method == "YYC" %}selected{% endif %}>Yin-Yang Codec
+                                    </option>
+                                    <option value="derrick" {% if base.method == "derrick" %}selected{% endif %}>Derrick
+                                    </option>
+                                    <option value="PolarCode" {% if base.method == "PolarCode" %}selected{% endif %}>DNA
+                                        PolarCode
+                                    </option>
+                                    <option value="hedges" {% if base.method == "hedges" %}selected{% endif %}>Hedges
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-5" id="algorithm-parameters">
+                    <h5 class="section-title mb-3"><i class="fa fa-cogs"></i>Algorithm Parameters</h5>
+                    <div class="p-4 border rounded" style="background-color: #fdfdfd;">
+                        <div class="row g-4">
+                            <!-- 通用参数 -->
+
+
+                            <!-- 共用参数区域,rs和gc,主要是喷泉码和阴阳码-->
+
+
+                            <!-- 每种算法专属参数区域 -->
+                            <div id="redundancy_cop" class="row g-4 col-12" style="display: none;">
+                                <div class="col-md-3">
+                                    <label for="seq_length_fountain" class="form-label parameter">Segment Length</label>
+                                    <input type="number" class="form-control"
+                                           id="seq_length_fountain" value="{{ base.seq_length }}" name="seq_length_fountain">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="homopolymer_fountain" class="form-label parameter">Max Homopolymer</label>
+                                    <input type="number" class="form-control"
+                                           id="homopolymer_fountain" value="{{ base.homopolymer }}" name="homopolymer_fountain">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="gc_fountain" class="form-label parameter">GC Bias</label>
+                                    <input type="number" class="form-control"
+                                           id="gc_fountain" name="gc_fountain"
+                                           value="{{ base.gc }}" step="0.01" min="0" max="1" inputmode="decimal">
+
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="rs_num_fountain" class="form-label parameter">RS Nums (bytes)</label>
+                                    <input type="number" class="form-control"
+                                           id="rs_num_fountain" value="{{ base.rs_num }}" name="rs_num_fountain">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="delta_fountain" class="form-label parameter">Delta</label>
+                                    <input type="text" class="form-control"
+                                           id="delta_fountain" value="{{ base.delta }}" name="delta_fountain">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="redundancy_rate_fountain" class="form-label parameter">Redundancy</label>
+                                    <input type="text" class="form-control"
+                                           id="redundancy_rate_fountain" value="{{ base.redundancy_rate }}" name="redundancy_rate_fountain">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="c_dist_fountain" class="form-label parameter">C_dist</label>
+                                    <input type="text" class="form-control"
+                                           id="c_dist_fountain" value="{{ base.c_dist }}" name="c_dist_fountain">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="crc_fountain" class="form-label parameter">CRC Nums (bytes)</label>
+                                    <select class="form-control" id="crc_fountain" name="crc_fountain"
+                                    >
+                                        <option value=0 {% if base.crc == 0 %}selected{% endif %}>0</option>
+                                        <option value=2 {% if base.crc == 2 %}selected{% endif %}>2</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="yyc_cop" class="row g-4 col-12" style="display: none;">
+                                <div class="col-md-3">
+                                    <label for="seq_length_yyc" class="form-label parameter">Segment Length</label>
+                                    <input type="number" class="form-control"
+                                           id="seq_length_yyc" value="{{ base.seq_length }}" name="seq_length_yyc">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="homopolymer_yyc" class="form-label parameter">Max Homopolymer</label>
+                                    <input type="number" class="form-control"
+                                           id="homopolymer_yyc" value="{{ base.homopolymer }}" name="homopolymer_yyc">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="gc_yyc" class="form-label parameter">GC Bias</label>
+                                    <input type="number" class="form-control"
+                                           id="gc_yyc" name="gc_yyc"
+                                           value="{{ base.gc }}" step="0.01" min="0" max="1" inputmode="decimal">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="rs_num_yyc" class="form-label parameter">RS Nums (bytes)</label>
+                                    <input type="number" class="form-control"
+                                           id="rs_num_yyc" value="{{ base.rs_num }}" name="rs_num_yyc">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="max_iterations_yyc" class="form-label parameter">Max Iterations</label>
+                                    <input type="number" class="form-control"
+                                           id="max_iterations_yyc" value="{{ base.max_iterations }}" name="max_iterations_yyc">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="crcyyc" class="form-label parameter">CRC Nums (bytes)</label>
+                                    <select class="form-control" id="crcyyc" name="crcyyc"
+                                    >
+                                        <option value=0 {% if base.crc == 0 %}selected{% endif %}>0</option>
+                                        <option value=2 {% if base.crc == 2 %}selected{% endif %}>2</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="derrick_cop" class="row g-4 col-12" style="display: none;">
+                                <div class="col-md-3">
+                                    <label for="seq_length_derrick" class="form-label parameter">Segment Length</label>
+                                    <input type="number" class="form-control"
+                                           id="seq_length_derrick" value="{{ base.seq_length }}" name="seq_length_derrick">
+                                </div>
+                                {#                                derrick 设置不了 homopolymer#}
+                                {#                                <div class="col-md-3">#}
+                                {#                                    <label for="homopolymer_derrick" class="form-label parameter">Max Homopolymer</label>#}
+                                {#                                    <input type="number" class="form-control"#}
+                                {#                                           id="homopolymer_derrick" value="{{ base.homopolymer }}" name="homopolymer_derrick">#}
+                                {#                                </div>#}
+                                <div class="col-md-3">
+                                    <label for="matrix_n_derrick" class="form-label parameter">matrix_n</label>
+                                    <input type="number" class="form-control"
+                                           id="matrix_n_derrick" value="{{ base.matrix_n }}" name="matrix_n_derrick">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="matrix_r_derrick" class="form-label parameter">matrix_r (rs_rows)</label>
+                                    <input type="number" class="form-control"
+                                           id="matrix_r_derrick" value="{{ base.matrix_r }}" name="matrix_r_derrick">
+                                </div>
+                            </div>
+                            <div id="polar_cop" class="row g-4 col-12" style="display: none;">
+                                <div class="col-md-3">
+                                    <label for="seq_length_polar" class="form-label parameter">Segment Length</label>
+                                    <input type="number" class="form-control"
+                                           id="seq_length_polar" value="{{ base.seq_length }}" name="seq_length_polar">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="homopolymer_polar" class="form-label parameter">Max Homopolymer</label>
+                                    <input type="number" class="form-control"
+                                           id="homopolymer_polar" value="{{ base.homopolymer }}" name="homopolymer_polar">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="frozen_bits_len_polar" class="form-label parameter">Frozen Bits Length</label>
+                                    <input type="number" class="form-control"
+                                           id="frozen_bits_len_polar" value="{{ base.frozen_bits_len }}" name="frozen_bits_len_polar">
+                                </div>
+                            </div>
+
+                            <div id="hedges_cop" class="row g-4 col-12" style="display: none;">
+                                <div class="col-md-3">
+                                    <label for="seq_length_hedges" class="form-label parameter">Segment Length</label>
+                                    <input type="number" class="form-control"
+                                           id="seq_length_hedges" value="{{ base.seq_length }}" name="seq_length_hedges">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="homopolymer_hedges" class="form-label parameter">Max Homopolymer(>=5)</label>
+                                    <input type="number" class="form-control"
+                                           id="homopolymer_hedges"
+                                           value="{{ base.homopolymer }}"
+                                           name="homopolymer_hedges"
+                                           min="5">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="matrix_n_h_hedges" class="form-label parameter">matrix_n</label>
+                                    <input type="number" class="form-control"
+                                           id="matrix_n_h_hedges" value="{{ base.matrix_n_h }}" name="matrix_n_h_hedges">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="matrix_r_h_hedges" class="form-label parameter">matrix_r (rs_rows)</label>
+                                    <input type="number" class="form-control"
+                                           id="matrix_r_h_hedges" value="{{ base.matrix_r_h }}" name="matrix_r_h_hedges">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="coderatecode_hedges" class="form-label parameter">Coderate Code</label>
+                                    <select id="coderatecode_hedges" name="coderatecode_hedges" class="form-control"
+                                    >
+                                        <option value="1" {% if base.coderatecode == '1' %}selected{% endif %}>0.75</option>
+                                        <option value="2" {% if base.coderatecode == '2' %}selected{% endif %}>0.6</option>
+                                        <option value="3" {% if base.coderatecode == '3' %}selected{% endif %}>0.5</option>
+                                        <option value="4" {% if base.coderatecode == '4' %}selected{% endif %}>1 / 3
+                                        </option>
+                                        <option value="5" {% if base.coderatecode == '5' %}selected{% endif %}>0.25</option>
+                                        <option value="6" {% if base.coderatecode == '6' %}selected{% endif %}>1 / 6
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <button type="button" id="encodeTriggerBtn" class="btn btn-main">
+                    <i class="fa fa-play-circle"></i> Encode File
+                </button>
+                <button type="submit" id="encodeBtn" name="encodeBtn" class="btn btn-main" style="display: none;">
+                    <i class="fa fa-play-circle"></i> Encode File
+                </button>
+
+
+            </form>
+
+            {% if encoded_data %}
+                <div class="mt-5">
+                    <hr>
+                    <h5 class="section-title mt-5 mb-3"><i class="fa fa-sign-out"></i>Output</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label parameter">Result Information</label>
+                            <div class="p-4 border rounded">
+                                <h5 class="card-title" style="color: #007bff!important;">Method: {{ base.method }}</h5>
+                                <p class="card-text mt-3">
+                                <div>total bit：{{ encoded_data.total_bit }}</div>
+                                <div>total base：{{ encoded_data.total_base }}</div>
+                                <div>encode time：{{ encoded_data.encode_time }}</div>
+                                <div>DNA sequence number：{{ encoded_data.seq_num }}</div>
+                                <div>Information density：{{ encoded_data.density }} bits/nt</div>
+                                {#                                <div>GC：{{ encoded_data.gc }}</div>#}
+                                <div>max_homopolymer：{{ encoded_data.max_homopolymer }}</div>
+                                </p>
+                                <a href="{% url 'download_file' mode='encode' %}" class="download-link btn btn-main">download</a>
+                                <a href="?reset=1" id="reencodeBtn" class="btn btn-red" >
+                                    <i class="fa fa-refresh"></i> Re-encode
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label parameter">Result Preview(Only first 100 lines shown in
+                                preview)</label>
+                            <div id="result_encode" class="preview-area p-3">
+
+                                {% if encoded_file_content %}
+                                    <pre>{{ encoded_file_content }}</pre>
+                                {% else %}
+                                    <span class="text-muted">No encoded file content available.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirm Encoding Information</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h5 class="text-primary"><i class="fa fa-file-alt me-1"></i> File Info</h5>
+                        <ul class="list-group mb-3" id="modalFileInfo">
+                            <li class="list-group-item"><strong>File:</strong> <span id="modalFilename"></span></li>
+                            <li class="list-group-item"><strong>Method:</strong> <span id="modalMethod"></span></li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="text-primary"><i class="fa fa-sliders-h me-1"></i> Encoding Parameters</h5>
+                        <ul class="list-group" id="modalParams">
+                            <!-- Dynamically filled -->
+                        </ul>
+                    </div>
+                </div>
+
+                {#                      <div id="loading-container" class="text-center mt-3" style="display: none;">#}
+                {#                        <img src="{% static 'images/loading.gif' %}" alt="Loading..." style="width: 60px;">#}
+                {#                        <p style="font-weight: bold;">Encoding in progress...</p>#}
+                {#                    </div>#}
+                <div id="loading-container" class="text-center mt-3" style="display: none;">
+                    <p style="font-weight: bold;">Encoding in progress...</p>
+                    <div class="progress" style="height: 20px;">
+                        <div id="encodeProgressBar"
+                             class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                             role="progressbar"
+                             style="width: 0%;"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            0%
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancelModalBtn">Cancel</button>
+                    <button type="button" id="confirmSubmit" name="confirmSubmit" class="btn btn-primary">Confirm and Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}
+{% block script %}
+    {#        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>#}
+    {#        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>#}
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        function initFileUpload() {
+            const uploadBtn = $('#uploadBtn');
+            const inputFile = $('#inputFile');
+            const fileNameLabel = $('#fileNameLabel');
+            const previewContainer = $('#preview_encode');
+            const progressContainer = $('#uploadProgressContainer');
+            const progressBar = $('#uploadProgressBar');
+
+            inputFile.on('change', function (e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    // 用户取消选择，不做任何处理，保留已有内容
+                    return;
+                }
+
+                // 重置并准备上传状态
+                previewContainer.html('Preparing upload preview...');
+                progressContainer.show();
+                fileNameLabel.text(file.name);
+                progressBar.width('0%').text('0%');
+
+                triggerPreviewUpload(file);
+
+                // 清空 input，允许再次选择相同文件也触发 change
+                inputFile.val('');
+            });
+
+            function triggerPreviewUpload(file) {
+                const formData = new FormData();
+                formData.append('file_for_preview', file);
+
+                const uploadUrl = "{% url 'upload_for_preview' %}";
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', uploadUrl, true);
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+                xhr.upload.onprogress = function (e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressContainer.show();
+                        progressBar.width(percentComplete + '%');
+                        progressBar.text(Math.round(percentComplete) + '%');
+                    }
+                };
+
+                xhr.onerror = function () {
+                    alert('An error occurred during the upload. Please try again.');
+                    progressContainer.hide();
+                };
+
+                xhr.onload = function () {
+                    progressContainer.hide();
+                    const response = JSON.parse(xhr.responseText);
+                    if (xhr.status === 200 && response.success) {
+                        const fileType = response.file_type;
+                        const fileContent = response.file_content;
+                        previewContainer.html('');
+                        if (fileType.startsWith('image/')) {
+                            previewContainer.append($('<img>').attr('src', fileContent).addClass('img-fluid'));
+                        } else if (fileType.startsWith('text/')) {
+                            previewContainer.append($('<pre>').text(fileContent));
+                        } else if (fileType.startsWith('video/')) {
+                            const video = $('<video controls>').css({
+                                maxWidth: '100%',
+                                maxHeight: '300px'
+                            }).append($('<source>').attr('src', fileContent).attr('type', fileType));
+                            previewContainer.append(video);
+                        } else {
+                            previewContainer.text(`'${response.file_name}' is a binary file. No preview available.`);
+                        }
+
+                    } else {
+                        previewContainer.text('Error: ' + (response.error || 'Server error'));
+                    }
+                };
+
+                xhr.send(formData);
+            }
+        }
+
+        function initParameterToggles() {
+            function toggle_parameters() {
+                const selectedOption = $('#method').val();
+                $('#gc_rs, #redundancy_cop, #yyc_cop, #derrick_cop, #hedges_cop, #polar_cop').hide();
+
+                if (selectedOption === 'fountain') {
+                    $('#gc_rs, #redundancy_cop').show();
+                } else if (selectedOption === 'YYC') {
+                    $('#gc_rs, #yyc_cop').show();
+                } else if (selectedOption === 'derrick') {
+                    $('#derrick_cop').show();
+                } else if (selectedOption === 'PolarCode') {
+                    $('#polar_cop').show();
+                    $('#seq_length_polar').val(260).prop('disabled', true);
+                    $('#homopolymer_polar').prop('disabled', true);
+                } else if (selectedOption === 'hedges') {
+                    $('#hedges_cop').show();
+                }
+
+                if (selectedOption !== 'PolarCode') {
+                    $('#seq_length, #homopolymer').prop('disabled', false);
+                }
+            }
+
+            $('#method').change(toggle_parameters);
+            toggle_parameters(); // 初始化
+        }
+
+        function initModalConfirm() {
+            $('#encodeTriggerBtn').click(function () {
+                const filename = $('#fileNameLabel').text() || 'N/A';
+                const method = $('#method').val();
+
+                $('#modalFilename').text(filename);
+                $('#modalMethod').text(method);
+
+                const modalParams = $('#modalParams');
+                modalParams.empty();
+
+                $('#algorithm-parameters input, #algorithm-parameters select').each(function () {
+                    if ($(this).closest("div[style*='display: none']").length === 0) {
+                        const name = $(this).prev('label').text() || $(this).attr('name');
+                        const value = $(this).val();
+                        modalParams.append(`<li class="list-group-item"><strong>${name}:</strong> ${value}</li>`);
+                    }
+                });
+                new bootstrap.Modal(document.getElementById('confirmModal')).show();
+            });
+        }
+
+        function encodeProgressAndSubmit() {
+            $('#confirmSubmit').click(function () {
+                const loadingContainer = $('#loading-container');
+                const progressBar = $('#encodeProgressBar');
+                const method = $('#method').val();
+                const fileInput = $('#inputFile')[0];
+                const fileSizeKB = fileInput.files.length > 0 ? fileInput.files[0].size / 1024 : 200;
+
+                // 1. 进度条计算逻辑
+                const methodWeights = {
+                    fountain: 1,
+                    YYC: 1,
+                    derrick: 1,
+                    PolarCode: 10,
+                    hedges: 4.5
+                };
+
+                const methodMultiplier = methodWeights[method] || 1;
+                const baseDuration = 100;
+                const level = Math.max(0, Math.ceil(Math.log2(fileSizeKB / 10)));
+                const totalDuration = baseDuration * Math.pow(2, level) * methodMultiplier;
+
+                let progress = 0;
+                let currentStep = 0;
+                const intervalMs = 100;
+                const steps = Math.floor(totalDuration / intervalMs);
+
+                // 2. 显示进度条
+                loadingContainer.show();
+                progressBar.width('0%').text('0%');
+
+                const intervalId = setInterval(() => {
+                    if (currentStep < steps) {
+                        currentStep++;
+                        progress = Math.min(95, Math.floor((currentStep / steps) * 100));
+                        progressBar.width(progress + '%').attr('aria-valuenow', progress).text(progress + '%');
+                    } else {
+                        clearInterval(intervalId);
+                    }
+                }, intervalMs);
+
+                // 3. 先触发表单提交
+                $('#encodeBtn').click();
+
+                // 4. 提交之后立即禁用按钮和表单控件，防止重复操作
+                setTimeout(() => {
+                    $('#confirmSubmit').prop('disabled', true).text('Submitting...');
+                    $('#cancelModalBtn').prop('disabled', true);
+                    $('input, select, textarea').not('#confirmSubmit').prop('disabled', true).css({
+                        backgroundColor: '#e9ecef',
+                        color: '#6c757d',
+                        cursor: 'not-allowed'
+                    });
+                }, 10);  // 延迟执行以确保click事件先触发
+            });
+        }
+        {#禁止homo小于5#}
+        function enforceMinValue(inputId, minValue) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            input.addEventListener("input", function () {
+                if (this.value !== "" && parseInt(this.value) < minValue) {
+                    this.value = minValue;
+                }
+            });
+        }
+        function disableFormIfNeeded() {
+            {% if disable %}
+                $('input, select, textarea, button').prop('disabled', true).css({
+                    backgroundColor: '#e9ecef',
+                    color: '#6c757d',
+                    cursor: 'not-allowed'
+                });
+            {% endif %}
+        }
+        $(document).ready(function () {
+            initFileUpload();
+            initParameterToggles();
+            initModalConfirm();
+            encodeProgressAndSubmit();
+            disableFormIfNeeded();
+            enforceMinValue("homopolymer_hedges", 5);
+        });
+    </script>
+
+{% endblock %}

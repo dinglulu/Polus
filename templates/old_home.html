@@ -1,0 +1,211 @@
+{% extends 'layout.html' %}
+
+{% block  content %}
+    <style>
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 93vh; /* 轮播图高度 */
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+
+            top: 0px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            object-fit: cover;
+            transition: opacity 1s ease;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 1; /* 设置透明度为0.5，可根据需要调整 */
+        }
+
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+
+    </style>
+
+
+    <div class="ftco-blocks-cover-1">
+        <div class="slideshow-container">
+
+            <div class="slide"
+                 style="background-image: url('../static/images/112.png');background-color: rgba(0, 0, 0, 0.1);background-blend-mode: multiply;">
+
+            </div>
+
+            <div class="slide"
+                 style="background-image: url('../static/images/113.png');background-color: rgba(0, 0, 0, 0.2);background-blend-mode: multiply;">
+
+            </div>
+
+            <div class="slide"
+                 style="background-image: url('../static/images/114.png');background-color: rgba(0, 0, 0, 0.2);background-blend-mode: multiply;">
+
+            </div>
+            <div class="slide"
+                 style="background-image: url('../static/images/115.png');background-color: rgba(0, 0, 0, 0.2);background-blend-mode: multiply;">
+
+            </div>
+            <div class="slide"
+                 style="background-image: url('../static/images/116.png');background-color: rgba(0, 0, 0, 0.2);background-blend-mode: multiply;">
+
+            </div>
+            <a class="prev" onclick="prevSlide()">&#10094;</a>
+            <a class="next" onclick="nextSlide()">&#10095;</a>
+
+
+            <div class="container" style="padding-top: 200px;">
+                <div class="row align-items-center justify-content-center text-center">
+
+{#                    <p data-aos="fade-up" style="font-size: 70px;color: white;padding-bottom: 0px">#}
+{#                        Welcome to <br>#}
+{#                        DNA storage simulation platform#}
+{#                        <br>#}
+{#                        ⭣#}
+{##}
+{#                    </p>#}
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="site-section bg-light" id="services-section">
+        <div style="width:100%;height:100%;padding-right: 0px;padding-left: 0px;padding-top: 0px">
+
+            <div class="row mb-5 justify-content-center">
+                <div class="col-md-% text-center">
+                    <div class="block-heading-1">
+                        <h2>功能列表</h2>
+                        <p>点击我的功能！</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="width: 100%">
+
+                <div class="col-md-1">
+
+                </div>
+                <div class="text-center col-md-2 block__35630" onclick="window.location.href='/all/rel/'">
+                    <div class="icon mb-0">
+                        <span>  <img src="../static/images/搜索.png" alt="图像检索"
+                                     style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                    <h3 class="mb-3">图谱展示</h3>
+                    <p>想要查看知识图谱？<br>点击我试试！</p>
+                </div>
+                <div class="text-center col-md-2 block__35630" onclick="window.location.href='/graph_retrieval/'">
+                    <div class="icon mb-0">
+                       <span>  <img src="../static/images/地图手册.png" alt="图像检索"
+                                    style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                    <h3 class="mb-3">图谱搜索</h3>
+                    <p>“中药材知识图谱检索”<br>图形化展示您感兴趣的药材知识</p>
+                </div>
+
+                <div class="text-center col-md-2 block__35630" onclick="window.location.href='/retrieve/'">
+                    <div class="icon mb-0">
+                        <span>  <img src="../static/images/地图.png" alt="图像检索"
+                                     style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                    <h3 class="mb-3">知识检索</h3>
+                    <p>中药材知识检索<br>得到更多您想了解的</p>
+                </div>
+                {% if messages %}
+                    <script>
+                        {% for msg in messages %}
+                            alert('{{ msg.message }}');
+                        {% endfor %}
+                    </script>
+                {% endif %}
+                <div class="text-center col-md-2 block__35630" onclick="window.location.href='/classification/'">
+                    <div class="icon mb-0">
+                        <span>  <img src="../static/images/灯塔.png" alt="图像检索"
+                                     style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                    <h3 class="mb-3">图像检索</h3>
+                    <p>只有中药材图片怎么办？<br>试试用图片来检索中药材信息</p>
+                </div>
+                <div class="text-center col-md-2 block__35630" onclick="window.location.href='/more_retrieval/'">
+                    <div class="icon mb-0">
+                        <span>  <img src="../static/images/卫星.png" alt="图像检索"
+                                     style="width:80px;height:80px;padding-bottom: 10px"></span>
+                    </div>
+                    <h3 class="mb-3">更多检索</h3>
+                    <p>不记得中药材名字？<br>没有中药材图片？<br>来试试更多检索</p>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // 添加事件监听器以响应用户点击
+        document.querySelector('.prev').addEventListener('click', previousSlide);
+        document.querySelector('.next').addEventListener('click', nextSlide);
+
+        showSlide(currentSlide);
+        setInterval(nextSlide, 3000);
+
+    </script>
+
+{% endblock %}

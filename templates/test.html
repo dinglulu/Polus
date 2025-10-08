@@ -1,0 +1,403 @@
+{% block script %}
+    {#          <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>#}
+     <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
+
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+
+    <script>
+
+    function init_ori_FileUpload(prefix) {
+    // 通过 prefix 拼接选择器
+    const uploadBtn = $('#uploadBtn_' + prefix);
+    const inputFile = $('#inputFile_' + prefix);
+    const fileNameLabel = $('#fileNameLabel_' + prefix);
+    const previewContainer = $('#preview_' + prefix);
+    const progressContainer = $('#uploadProgressContainer_' + prefix);
+    const progressBar = $('#uploadProgressBar_' + prefix);
+
+    inputFile.on('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) {
+            // 用户取消选择，不做处理
+            return;
+        }
+
+        // 显示准备信息和进度条
+        previewContainer.html('Preparing upload preview...');
+        progressContainer.show();
+        fileNameLabel.text(file.name);
+        progressBar.width('0%').text('0%');
+
+        // 上传预览
+        triggerPreviewUpload(file);
+
+        // 清空 input，允许再次选择同名文件也触发 change
+        inputFile.val('');
+    });
+
+    function triggerPreviewUpload(file) {
+        const formData = new FormData();
+        formData.append('file_for_preview', file);
+        formData.append('uploader_prefix', prefix); // 传前缀给后端区分来源
+
+        const uploadUrl = "{% url 'upload_for_preview' %}";
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', uploadUrl, true);
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressContainer.show();
+                progressBar.width(percentComplete + '%');
+                progressBar.text(Math.round(percentComplete) + '%');
+            }
+        };
+
+        xhr.onerror = function () {
+            alert('An error occurred during the upload. Please try again.');
+            progressContainer.hide();
+        };
+
+        xhr.onload = function () {
+            progressContainer.hide();
+            const response = JSON.parse(xhr.responseText || '{}');
+            if (xhr.status === 200 && response.success) {
+                const fileType = response.file_type;
+                const fileContent = response.file_content;
+                const fileName = response.file_name || file.name;
+
+                previewContainer.html('');
+                if (fileType.startsWith('image/')) {
+                    previewContainer.append($('<img>').attr('src', fileContent).css({maxHeight: '12vw'}));
+                } else if (fileType.startsWith('video/')) {
+                    const video = $('<video controls>').css({maxHeight: '12vw'})
+                        .append($('<source>').attr('src', fileContent).attr('type', fileType));
+                    previewContainer.append(video);
+                } else if (fileType.startsWith('text/') || fileType === 'text') {
+                    // 支持 FASTA / FASTQ 等
+                    previewContainer.append($('<pre>').css({
+                        whiteSpace: 'pre-wrap',
+                        fontSize: '0.9rem'
+                    }).text(fileContent));
+                } else {
+                    previewContainer.text(`'${fileName}' is a binary file. No preview available.`);
+                }
+
+            } else {
+                previewContainer.text('Error: ' + (response.error || 'Server error'));
+            }
+        };
+
+        xhr.send(formData);
+    }
+}
+    function initUploader(prefix) {
+    const uploadBtn = $(`#uploadBtn_${prefix}`);
+    const inputFile = $(`#inputFile_${prefix}`);
+    const previewContainer = $(`#preview_${prefix}`);
+    const progressContainer = $(`#uploadProgressContainer_${prefix}`);
+    const progressBar = $(`#uploadProgressBar_${prefix}`);
+    const fileLabel = $(`#fileNameLabel_${prefix}`);
+
+    inputFile.on('change', function (e) {
+        if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            uploadBtn.click();
+            fileLabel.text(fileName);
+            progressBar.width('0%').text('0%');
+        } else {
+            uploadBtn.hide();
+            previewContainer.text('No file selected.');
+        }
+    });
+
+    uploadBtn.on('click', function () {
+        const file = inputFile[0].files[0];
+        if (!file) {
+            alert("Please select a file first.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file_for_preview', file);
+        formData.append('uploader_prefix', prefix);
+        const uploadUrl = "{% url 'preview_fasta_file_for_cluster_and_reconstruct' %}";
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', uploadUrl, true);
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressContainer.show();
+                progressBar.width(percentComplete + '%');
+                progressBar.text(Math.round(percentComplete) + '%');
+            }
+        };
+
+        xhr.onerror = function () {
+            alert('An error occurred during the upload. Please try again.');
+            progressContainer.hide();
+        };
+
+        xhr.onload = function () {
+            progressContainer.hide();
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                previewContainer.html('');
+
+                if (response.success) {
+                    const fileType = response.file_type;
+                    const fileUrl = response.file_url;  // 后端返回可访问URL
+
+                    previewContainer[0].style.setProperty('height', '200px', 'important');
+
+                    if (fileType.startsWith('image/')) {
+                        const img = $('<img>').attr('src', fileUrl).addClass('img-fluid');
+                        previewContainer.append(img);
+                    } else if (fileType.startsWith('video/')) {
+                        const video = $('<video controls width="100%">').attr('src', fileUrl);
+                        previewContainer.append(video);
+                    } else if (fileType.startsWith('audio/')) {
+                        const audio = $('<audio controls>').attr('src', fileUrl);
+                        previewContainer.append(audio);
+                    } else if (fileType.startsWith('text/')) {
+                        const pre = $('<pre>').text(response.file_content);
+                        previewContainer.append(pre);
+                    } else {
+                        previewContainer.text(`'${response.file_name}' uploaded. No preview available.`);
+                    }
+                } else {
+                    previewContainer.text('Error: ' + response.error);
+                }
+            } else {
+                previewContainer.text('Server error: Could not process the file.');
+            }
+        };
+
+        xhr.send(formData);
+    });
+}
+
+    function initFilenameLabel(hiddenInputId, labelId) {
+        const val = document.getElementById(hiddenInputId).value;
+        if (val) {
+            const label = document.getElementById(labelId);
+            label.textContent = val;
+            label.classList.add('selected');
+        }
+    }
+
+    function bindFilenameInputs() {
+        $('#file2').on('change', function (e) {
+            $("#fileNameLabel2").html(e.target.files[0].name);
+        });
+        $('#file3').on('change', function (e) {
+            $("#fileNameLabel3").html(e.target.files[0].name);
+        });
+    }
+
+    function scrollPositionPersistence() {
+        const STORAGE_KEY = 'scrollPosition';
+
+        window.addEventListener('scroll', function () {
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            sessionStorage.setItem(STORAGE_KEY, scrollPosition);
+        });
+
+        window.addEventListener('load', function () {
+            const scrollPosition = sessionStorage.getItem(STORAGE_KEY);
+            if (scrollPosition) {
+                window.scrollTo(0, parseInt(scrollPosition, 10));
+            }
+        });
+    }
+
+    function bindClusterReconstructChange() {
+        $('#cluster_method').change(function () {
+            var cluster = $(this).val();
+            const disabled = cluster === 'no';
+
+            $('#inputFile, #cluster_file, #rebuild_method, #reconstruct, #confidence_yes, #confidence_no')
+                .prop('disabled', disabled);
+
+            if (cluster === 'index') {
+                $('#index_length_div').show();
+            } else {
+                $('#index_length_div').hide();
+            }
+        });
+
+        $('#reconstruct').change(function () {
+            var reconstruct = $(this).val();
+            if (reconstruct === 'yes') {
+                $('#rebuild_method_isshow').show();
+
+                const rebuildMethod = $('#rebuild_method').val();
+                if (rebuildMethod === 'SeqFormer' || rebuildMethod === 'bsalign') {
+                    $('#baseconfidence_div').show();
+                    $('#copy_num').show();
+                }
+            } else {
+                $('#rebuild_method_isshow, #baseconfidence_div, #copy_num').hide();
+            }
+        });
+
+        $('#rebuild_method').change(function () {
+            var method = $(this).val();
+            if (method === 'SeqFormer' || method === 'bsalign') {
+                $('#baseconfidence_div, #copy_num').show();
+            } else {
+                $('#baseconfidence_div, #copy_num').hide();
+            }
+        });
+
+        $('#method').change(function () {
+            var method = $(this).val();
+            if (['fountain', 'PolarCode', 'YYC'].includes(method)) {
+                $('#decision_soft').show();
+            } else {
+                $('#decision_soft').hide();
+            }
+        });
+    }
+    {#确认之后提交，并且有一个模拟进度条#}
+    function simulateClusterProgressAndSubmit() {
+    let isProcessing = false; // 防重复标记
+
+    $('#confirmClusterSubmit').click(function () {
+        const confirmBtn = $(this);
+
+        if (isProcessing) {
+            return; // 已在处理，阻止重复点击
+        }
+        isProcessing = true;
+
+        // 1️⃣ 视觉上禁用按钮，显示处理中
+        confirmBtn.prop('disabled', true).text('Processing...');
+
+        // 2️⃣ 显示进度条
+        const loadingContainer = $('#cluster-loading-container');
+        const progressBar = $('#clusterProgressBar');
+        loadingContainer.show();
+        progressBar.width('0%').text('0%');
+
+        // 模拟进度条
+        let progress = 0;
+        let currentStep = 0;
+        const fileSizeKB = 200;  // 可根据需要动态调整
+        const level = Math.max(0, Math.ceil(Math.log2(fileSizeKB / 100)));
+        const totalDuration = 800 * Math.pow(2, level);
+        const steps = Math.floor(totalDuration / 100);
+
+        const intervalId = setInterval(() => {
+            if (currentStep < steps) {
+                currentStep++;
+                progress = Math.min(95, Math.floor((currentStep / steps) * 100));
+                progressBar.width(progress + '%').text(progress + '%').attr('aria-valuenow', progress);
+            } else {
+                clearInterval(intervalId);
+                progressBar.width('100%').text('100%').attr('aria-valuenow', 100);
+
+                // 3️⃣ 延迟触发真正提交
+                setTimeout(() => {
+                    $('#clusterBtn').click();
+                }, 300);
+            }
+        }, 100);
+    });
+}
+
+
+    {#clusterBtn的确认框#}
+    function initClusterConfirm() {
+    $('#clusterTriggerBtn').click(function () {
+        const filename = $('#fileNameLabel_simulate').text() || 'N/A';
+        const method = $('#cluster_method').val();
+
+        $('#clusterModalFilename').text(filename);
+        $('#clusterModalMethod').text(method);
+
+        const modalParams = $('#clusterModalParams');
+        modalParams.empty();
+
+        $('#cluster_method, #copy_number, #index_length, #reconstruct, #rebuild_method, #confidence_yes, #confidence_no')
+            .each(function () {
+                if ($(this).is(':visible')) {
+                    const label = $(`label[for="${$(this).attr('id')}"]`).text() || $(this).attr('name');
+                    const value = $(this).is(':radio') ? ($(this).is(':checked') ? $(this).val() : null) : $(this).val();
+                    if (value !== null) {
+                        modalParams.append(`<li>${label}: ${value}</li>`);
+                    }
+                }
+            });
+
+        new bootstrap.Modal(document.getElementById('clusterConfirmModal')).show();
+    });
+}
+
+    function initDefaults() {
+        var cluster = $('#cluster_method').val();
+        if (cluster !== 'no') {
+            $('#download_clusterfile').show();
+        }
+        if (cluster === 'index') {
+            $('#index_length_div').show();
+        }
+
+        var rec = $('#reconstruct').val();
+        if (rec === 'yes') {
+            $('#rebuild_method_isshow').show();
+        }
+
+        var method = $('#method').val();
+        if (['fountain', 'PolarCode', 'YYC'].includes(method)) {
+            $('#decision_soft').show();
+        } else {
+            $('#decision_soft').hide();
+        }
+    }
+    $(document).ready(function () {
+        initUploader('simulate');
+        initUploader('ref');
+        initUploader('decode');
+        {#initUploader('origin');#}
+        init_ori_FileUpload('origin')
+
+        bindFilenameInputs();
+        scrollPositionPersistence();
+        bindClusterReconstructChange();
+        initDefaults();
+
+        initClusterConfirm();
+
+        simulateClusterProgressAndSubmit();
+
+        initFilenameLabel('forclusterfile_filename', 'fileNameLabel_simulate');
+        initFilenameLabel('encode_outfile_filename', 'fileNameLabel_ref');
+        initFilenameLabel('file_for_decode', 'fileNameLabel_decode');
+        initFilenameLabel('ori_filename', 'fileNameLabel_origin');
+    });
+    </script>
+{#    如果报错 就弹窗出来#}
+    {% if errors %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const errorMessage = `{{ errors|escapejs }}`;  // 转义防止 XSS
+    document.getElementById("errorModalBody").textContent = errorMessage;
+
+    const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+    modal.show();
+  });
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,351 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block css %}
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0 20px 40px;
+            background-color: #fff;
+            color: #445566;
+            line-height: 1.6;
+        }
+
+        main {
+            max-width: 80vw;
+            margin: 30px auto 0;
+        }
+
+        h1 {
+            font-weight: 600;
+            color: #334d66;
+            font-size: 2vw;
+            margin-bottom: 0.4vw;
+            display: flex;
+            align-items: center;
+            gap: 0.5vw;
+        }
+
+        h1 .icon {
+            font-size: 1.8vw;
+            color: #5877a2;
+        }
+
+        h2 {
+            font-weight: 600;
+            color: #54719e;
+            margin-top: 2vw;
+            margin-bottom: 0.8vw;
+            border-bottom: 0.2vw solid #aac7e3;
+            padding-bottom: 0.4vw;
+            font-size: 1.5vw;
+        }
+
+        p {
+            margin-bottom: 0.8vw;
+            font-size: 1vw;
+        }
+
+        a {
+            color: #4078c0;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #2c4a82;
+        }
+
+
+
+
+        em {
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+    <main>
+        <h1><span class="icon">ℹ️</span> Instruction</h1>
+
+        <section>
+            <h2>DNA STORAGE SYSTEM</h2>
+            <div class="text-center">
+                <img style="width: 60vw;height: auto" src="{% static 'images/115.png'%}">
+            </div>
+        </section>
+
+        <section>
+            <h2>ENCODE</h2>
+            <p><strong>Encoding module</strong></p>
+            <p>Polus exposes a common API around multiple DNA encoding/decoding schemes (“codecs”).
+                As a demo, we first integrated three representative codecs—<strong>DNA Fountain</strong>,
+                <strong>Yin–Yang (YYC)</strong>, and <strong>Derrick</strong>—by re‑implementing each per its
+                published specification and then wrapped with a common Polus API for seamless switching.
+                All encoders start from an input file and produce a collection of DNA oligonucleotide sequences with
+                addressing and redundancy.</p>
+
+            <p><strong>DNA Fountain (outer LT code with inner RS).</strong>
+                We followed Erlich & Zielinski’s architecture,
+                in which each droplet carries a short inner <strong>Reed–Solomon (RS)</strong> check and the outer
+                <strong>Luby‑Transform (LT)</strong> fountain code resolves erasures at the fragment level.
+                In the canonical configuration, each droplet comprises
+                <strong>4 bytes</strong> seed + <strong>32 bytes</strong> payload + <strong>2 bytes</strong> RS parity
+                (total <strong>38 bytes</strong>), and decoding admits only RS‑validated droplets into the LT peeling solver.
+                Logical redundancy is set by the droplet budget; in practice we target low single‑digit overhead,
+                and our runs used ≈<strong>5–8%</strong>—in line with the ~<strong>7%</strong> overhead reported in the original work—
+                by adjusting the number of generated droplets (seed schedule) at fixed constraints
+                (GC contents, homopolymer lengths).</p>
+
+            <p><strong>Yin–Yang codec.</strong>
+                YYC uses two complementary mapping rules (“yin” and “yang”) to encode
+                <strong>2 bits</strong> per nucleotide, satisfying biochemical constraints (GC, homopolymers, secondary structure).
+                We implemented YYC per the Ping et al.’s description and appended an outer
+                <strong>RS(255,223)</strong> over GF(<strong>2^8</strong>) to the emitted strands (≈<strong>12.5%</strong> parity),
+                leaving the YYC transcoding itself unchanged.</p>
+
+            <p><strong>Derrick.</strong>
+                Derrick introduces soft‑decision decoding for DNA storage by predicting error
+                locations/likelihoods and feeding them to RS decoders as erasures.
+                We adopted the published pipeline—consensus, confidence estimation, and erasure‑aware RS—
+                and used <strong>RS(255,k)</strong> families matched to our comparison settings
+                (default <strong>RS(255,223)</strong> unless otherwise noted)
+                so that YYC and Derrick carry comparable outer‑code overheads.</p>
+
+            <p><strong>Constraint screening and outputs.</strong>
+                After encoding, Polus applies the same constraint filters across codecs
+                (GC window and homopolymer limit) before emitting FASTA/FASTQ.
+                The platform then compiles an encoding report with:
+                (<strong>i</strong>) logical density (<strong>bits nt⁻¹</strong>, counting all synthesized nt),
+                (<strong>ii</strong>) encoding efficiency (speed and computational time taken)
+                and (<strong>iii</strong>) sequence‑property distributions (GC content and homopolymers run‑length).
+                These reports ensure that differences observed downstream
+                (e.g., coverage required for full recovery) can be traced to codec design.</p>
+
+            <p><strong>Implementation notes.</strong>
+                (<strong>i</strong>) Our DNA Fountain implementation uses the published droplet
+                format (<strong>4 B</strong> seed, <strong>32 B</strong> payload, <strong>2 B</strong> RS) and standard LT peeling;
+                redundancy is controlled by droplet count.
+                (<strong>ii</strong>) YYC transcoding follows the published dual‑rule mapping;
+                the outer RS layer is our evaluation choice to equalize FEC budgets across codecs.
+                (<strong>iii</strong>) Derrick’s soft‑decision RS matches the NSR reference.</p>
+        </section>
+        <section>
+            <h2>In silico DNA channel simulation</h2>
+            <p>Here we implemented a multi‑stage <em>in silico</em> simulation pipeline that mimics the DNA storage channel:
+                from synthesis through storage/aging, PCR amplification, and sequencing.
+                This simulation is critical for benchmarking because fully experimental tests are time‑consuming and expensive.
+                <strong>Polus’s simulator</strong> is modular, allowing different error models or parameters to be plugged in for each stage:</p>
+
+            <p><strong>Synthesis errors:</strong>
+                We modeled oligo synthesis using a stochastic simulator (<strong>dt4dds</strong>) that introduces
+                context‑dependent substitution, insertion, and deletion errors during oligo writing.
+                <em>修改包含的参数</em></p>
+
+            <p><strong>Storage and decay:</strong>
+                After synthesis, oligos may be stored for varying periods or conditions.
+                Our simulator can optionally model DNA decay, including random strand breaks and base damage
+                (e.g., <strong>C→T</strong> deamination).
+                For accelerated aging tests, we increased these damage rates to mimic <strong>years or decades</strong> of storage.</p>
+
+            <p><strong>PCR amplification:</strong>
+                Prior to sequencing, DNA oligos are typically PCR amplified to create a sequencing library.
+                PCR can introduce <em>bias</em> – certain sequences amplify more or less efficiently – and <em>errors</em> –
+                polymerase errors can introduce substitutions
+                (at rates ~<strong>10⁻⁵–10⁻⁶</strong> per base per cycle for high‑fidelity enzymes) or indels (much rarer).
+                We included a simplified PCR model where each oligo is randomly assigned a <strong>coverage multiplier</strong>
+                (some oligos end up overrepresented, others underrepresented in the sequencing input),
+                with a <strong>dispersion factor</strong> reflecting empirically observed PCR bias.</p>
+
+            <p><strong>Sequencing errors:</strong>
+                Polus supports different sequencing models.
+                For <strong>Illumina (short‑read)</strong> sequencing, we used <strong>dt4dds</strong> in a sequencing mode
+                to introduce predominantly substitution errors at a target rate
+                (e.g., <strong>0.1%</strong> per base) and small indel errors.
+                For <strong>Oxford Nanopore (long‑read)</strong> sequencing, we leveraged the read simulator
+                <strong>Badread</strong> to generate long reads with typical Nanopore error characteristics
+                (~<strong>5–10%</strong> errors, with an <strong>indel:substitution ratio ≈3:1</strong>).</p>
+
+            <p>The output of the simulator is a set of sequencing read files
+                (<strong>FASTQ</strong> format with quality scores) for each simulated sequencing run.</p>
+        </section>
+        <section>
+            <h2>Soft‑decision decoding implementation</h2>
+            <p><strong>Polus’s soft‑decision decoding module</strong> was implemented for each codec as follows.
+                After <strong>SeqFormer</strong> produces a consensus sequence and an error probability for each base of an oligo,
+                we translated this into inputs for the codec’s decoder:</p>
+
+            <p><strong>RS codes</strong>
+                (used in Yin–Yang outer layer, in DNA Fountain inner layer and in Derrick alone):
+                We set a <strong>threshold</strong> (e.g., <strong>0.3</strong>) for “high error probability.”
+                Any base with an error likelihood above this threshold was treated as an <strong>erasure</strong>
+                in the RS decoding step.
+                The RS decoder was modified to accept erasures in its decoding algorithm.
+                If the number of <strong>erasures + ½ × errors</strong> was within the code’s capability
+                (e.g., <strong>RS(255,223)</strong> can correct up to <strong>16</strong> errors or <strong>32</strong> erasures),
+                decoding succeeded.
+                By tuning the threshold, we ensured that we only mark truly ambiguous bases as erasures to avoid
+                unnecessary erasures (which could reduce the code’s parity budget).
+                In practice, we found a clear separation: SeqFormer’s confidence scores tend to be
+                very high (> <strong>0.99</strong>) for correct bases and low (< <strong>0.5</strong>) for the few error positions,
+                so setting approx. <strong>0.6</strong> worked well
+                (nearly all actual error positions were marked, with few false marks).</p>
+
+            <p><strong>DNA Fountain.</strong>
+                SeqFormer supplies position‑wise base probabilities that we aggregate to <strong>byte‑level reliabilities</strong>
+                for each droplet.
+                From these, we mark <strong>low‑confidence</strong> byte positions as erasures
+                and run an <strong>erasure‑aware RS decoder</strong> on the droplet.
+                Only droplets whose RS soft‑decoding succeeds
+                (i.e., passes syndrome check after correcting errors/erasures)
+                are admitted to the outer <strong>Fountain decoder</strong>;
+                droplets that fail RS are discarded rather than injected into LT equations.
+                The <strong>LT decoder</strong> then performs iterative belief‑propagation solving for source fragments.
+                By <em>filtering and rescuing</em> droplets at the RS layer (via soft erasures) rather than hard‑rejecting them,
+                the Fountain stage receives more usable droplets at a given sequencing coverage,
+                which increases the probability of completing the system of equations at the same logical overhead.</p>
+
+            <p><strong>Yin–Yang codec.</strong>
+                We applied SeqFormer to each strand pair separately.
+                For each scheme, the decoded file was verified using a <strong>checksum or hash</strong>.
+                Polus implements an automatic <strong>CRC32</strong> verification of the reconstructed data.
+                The inner Yin–Yang mapping itself is a <strong>deterministic transcoding</strong>,
+                so no probabilistic step there,
+                but we again used an outer <strong>RS(255,223)</strong> across the data blocks.
+                As with the RS codes case, we marked <strong>high‑likelihood error positions</strong> as erasures
+                before RS decoding.</p>
+        </section>
+        <section>
+            <h2>Evaluation Module</h2>
+            <p>Polus evaluates DNA data storage performance across multiple dimensions to capture both
+                <strong>information‑theoretic</strong> and <strong>biochemical</strong> aspects:</p>
+
+            <ol>
+                <li><strong>Data File Recovery:</strong>
+                    <p>This category includes:</p>
+                    <ul>
+                        <li><strong>Bit Error Rate (BER)</strong> – the fraction of bits that are incorrect in the final reconstructed file
+                            (after decoding) relative to the original input.</li>
+                        <li><strong>Strand (or Block) Recovery Rate</strong> – the percentage of oligo strands (or codeword blocks)
+                            that are decoded without any errors.</li>
+                    </ul>
+                    <p>A <strong>0% BER</strong> and <strong>100% strand recovery rate</strong> means the file was perfectly reconstructed.
+                        These metrics directly measure decoder success.</p>
+                </li>
+
+                <li><strong>Logical Density:</strong>
+                    <p>The number of <strong>information bits per nucleotide synthesized</strong>.
+                        Let <strong>B<sub>info</sub></strong> be the total information bits in the input file(s), and
+                        <strong>N<sub>syn</sub></strong> be the total number of synthesized nucleotides
+                        (sum over all oligos, including addressing and ECC).
+                        The logical density is given by:</p>
+
+                    <p style="text-align:center; font-weight:bold; font-size:1.2vw;">
+                        D<sub>logical</sub> = B<sub>info</sub> / N<sub>syn</sub> &nbsp; (bits/nt)
+                    </p>
+                </li>
+
+                <li><strong>Physical Density:</strong>
+                    <p>The amount of data stored per unit mass of DNA, typically in <strong>bytes per gram</strong>.</p>
+                    <p>Under the ideal dry‑DNA assumption, the number of nucleotides per gram is:</p>
+
+                    <p style="text-align:center; font-weight:bold; font-size:1.2vw;">
+                        N<sub>nt/g</sub> = (N<sub>A</sub> / M<sub>nt</sub>)
+                    </p>
+
+                    <p>Where <strong>N<sub>A</sub></strong> is the <em>Avogadro constant</em> and
+                        <strong>M<sub>nt</sub></strong> is the <em>average molar mass per nucleotide</em> of ssDNA
+                        (≈<strong>330 g/mol</strong> for a single nucleotide).
+                        Thus, the <strong>ideal physical density</strong> is:</p>
+
+                    <p style="text-align:center; font-weight:bold; font-size:1.2vw;">
+                        D<sub>phys,ideal</sub> = (B<sub>info</sub> / N<sub>syn</sub>) × (N<sub>A</sub> / M<sub>nt</sub>)
+                    </p>
+
+                    <p>Then for <strong>actual physical density</strong>,
+                        reliable readout requires multiple copy numbers per oligo, denoted as <strong>C<sub>min</sub></strong>.
+                        We take this as the minimal average coverage yielding error‑free recovery
+                        (from our <em>in silico</em> experiments).
+                        Under assumptions similar to Church et al. (2012) – e.g.,
+                        ~<strong>100 molecules/oligo</strong>,
+                        no synthesis or long‑term loss (effective yield ≈1) –
+                        the actual density reduces to:</p>
+
+                    <p style="text-align:center; font-weight:bold; font-size:1.2vw;">
+                        D<sub>phys,actual</sub> = D<sub>phys,ideal</sub> / C<sub>min</sub>
+                    </p>
+                </li>
+
+                <li><strong>Sequencing Depth Requirement:</strong>
+                    <p>The <strong>minimum average sequencing coverage per oligo</strong> required to consistently
+                        recover the data without errors.
+                        We determine this by running simulations with <strong>decreasing read depths</strong> until decoding fails.</p>
+                </li>
+
+                <li><strong>Encoding Speed:</strong>
+                    <p>The throughput of the encoding process per second.
+                        We measured <strong>wall‑clock times</strong> of our encoder implementations on a <strong>XXX CPU</strong>
+                        to compare their efficiency.</p>
+                </li>
+
+                <li><strong>Decoding Speed:</strong>
+                    <p>The throughput of the decoding process per second.
+                        We measured <strong>wall‑clock times</strong> for decoding on the same hardware.
+                        For Polus, we <strong>separately recorded</strong> the time for clustering, SeqFormer inference,
+                        and error‑correction decoding.</p>
+                </li>
+
+                <li><strong>Cost per MB:</strong>
+                    <p>An estimate of the monetary cost to store and retrieve 1 MB of data using each scheme, factoring in:</p>
+                    <ul>
+                        <li>DNA <strong>synthesis cost</strong> per base (≈<strong>$0.10</strong>)</li>
+                        <li>DNA <strong>sequencing cost</strong> per read/coverage
+                            (≈<strong>$1000</strong> per ~1B Illumina reads,
+                            ≈<strong>$30</strong>/Gb for Nanopore MinION)</li>
+                    </ul>
+                </li>
+
+                <li><strong>GC Content:</strong>
+                    <p>The average (and distribution of) <strong>GC fraction</strong> in the encoded oligos.
+                        All our schemes enforce roughly <strong>45–55%</strong> GC,
+                        but this is reported to ensure none produce extreme GC outliers that may hinder PCR or sequencing.</p>
+                </li>
+
+                <li><strong>Max Homopolymer Length:</strong>
+                    <p>The longest run of identical nucleotides in any encoded oligo.
+                        This reflects adherence to biochemical constraints,
+                        since homopolymers longer than ~<strong>5 bases</strong> can increase sequencing error rates.</p>
+                </li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Reference</h2>
+            <ol>
+                <li>Huang X, Cui J, Qiang W, Ye J, Wang Y, Xie X, Li Y, Dai J. Storage-D: a user-friendly tool that
+                    enables practical and personalized data storage into DNA.</li>
+                <li><a href="#" target="_blank">Church, G. M., Gao, Y. & Kosuri, S. Next-generation digital information
+                    storage in DNA. Science. <strong>2012; 337(6102):1628</strong>.</a></li>
+                <li><a href="#" target="_blank">Goldman, N. et al. Towards practical, high-capacity, low-maintenance
+                    information storage in synthesized DNA. Nature. <strong>2013; 494(7435):77-80</strong>.</a></li>
+                <li><a href="#" target="_blank">Erlich, Y. & Zielinski, D. DNA Fountain enables a robust and efficient
+                    storage architecture. Science. <strong>2017; 355(6328):950-954</strong>.</a></li>
+                <li><a href="#" target="_blank">Ping Z., Chen S., Zhou G., Huang X., Zhu S., Zhang H., Lee H., Lan Z.,
+                    Cui J., Chen T., Zhang W., Yang H., Xu X., Church G., Shen Y. Towards Practical and Robust DNA-Based
+                    Data Archiving Using ‘Yin-Yang Codec‘ System. Nature Computational Science.
+                    <strong>2022; 2, 234–242</strong>.</a></li>
+            </ol>
+            <p><em>Note: for all algorithms included into this tool, please go to references above to know the details
+                about "competing interest" statement.</em></p>
+        </section>
+    </main>
+
+{% endblock %}
+{% block script %}
+
+{% endblock %}
