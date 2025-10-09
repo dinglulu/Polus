@@ -2,9 +2,12 @@
 
 ------
 
-<img src="/polus_logo.png" alt="Polus Logo" width="120"/>
+<p align="center">
+  <img src="/polus_logo.png" alt="Polus Logo" width="400"/>
+</p>
 
-# Polus
+
+<h1 align="center">Polus</h1>
 
 ****
 
@@ -303,4 +306,6 @@ Ensure port **8045** is open in your firewall or cloud security group.
 
 ------
 
-<img src="/Polus - 9.28.png" alt="Polus Logo" width="120"/>
+<p align="center">
+  <img src="/Polus - 9.28.png" alt="Polus Logo" width="400"/>
+</p>
