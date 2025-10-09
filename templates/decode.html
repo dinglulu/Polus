@@ -941,6 +941,42 @@
     <script src="{% static 'js/jquery.min.js' %}"></script>
 
     <script>
+// ==== 估时工具 ====
+function estimateDuration({ stage, method, copyNum = 1, fileSizeKB = 200 }) {
+  const BASE_MS = {
+    decode: {
+      "Iterative": 100_000,
+      "SeqFormer":  80_000,
+      "bsalign":    20_000,
+      "BMALA":      20_000,
+      "DivBMA":     20_000,
+      "Hybrid":     20_000,
+      "default":    20_000
+    },
+    cluster: {
+      "index":     25_000,
+      "reference": 20_000,
+      "no":         5_000,
+      "default":   35_000
+    }
+  };
+  const base = (BASE_MS[stage] && BASE_MS[stage][method]) || BASE_MS[stage].default;
+  // copy 数的影响（对数增长，最多 +30%）
+  const copyMul = Math.min(0.5, 1 + 0.015 * Math.log2(Math.max(1, copyNum)));
+  // 文件大小的影响（对数增长，最多 +50%）
+  const sizeMul = Math.min(1.50, 1 + 0.15 * Math.log2(Math.max(1, fileSizeKB / 100)));
+  return Math.round(base * copyMul * sizeMul);
+}
+
+function durationToSteps(totalMs) {
+  return Math.max(20, Math.floor(totalMs / 100)); // 每100ms更新一次，至少20步
+}
+
+function getFileSizeKB(inputSelector, fallbackKB = 200) {
+  const el = document.querySelector(inputSelector);
+  if (el?.files?.[0]?.size != null) return Math.max(1, Math.round(el.files[0].size / 1024));
+  return fallbackKB;
+}
 
     function init_ori_FileUpload(prefix) {
     // 通过 prefix 拼接选择器
@@ -1121,54 +1157,72 @@
 }
 
 
-  function initDecodeConfirm() {
-    // 点击 start decode 弹出 modal
-    $('#decodeTriggerBtn').click(function () {
-        const filename = $('#fileNameLabel_decode').text() || 'N/A';
-        const origin = $('#fileNameLabel_origin').text() || 'N/A';
-        const method = $('#method').val();
-        const decision = $('#decision').val();
-        const copyNum = $('#copy_number_decode').val() || 'N/A';
+function initDecodeConfirm() {
+  // 点击 start decode 弹出 modal
+  $('#decodeTriggerBtn').click(function () {
+      const filename = $('#fileNameLabel_decode').text() || 'N/A';
+      const origin = $('#fileNameLabel_origin').text() || 'N/A';
+      const method = $('#method').val();
+      const decision = $('#decision').val();
+      const copyNum = $('#copy_number_decode').val() || 'N/A';
 
-        $('#decodeModalFilename').text(filename);
-        $('#decodeModalOrigin').text(origin);
-        $('#decodeModalMethod').text(method);
-        $('#decodeModalDecision').text(decision);
-        $('#decodeModalCopyNum').text(copyNum);
+      $('#decodeModalFilename').text(filename);
+      $('#decodeModalOrigin').text(origin);
+      $('#decodeModalMethod').text(method);
+      $('#decodeModalDecision').text(decision);
+      $('#decodeModalCopyNum').text(copyNum);
 
-        new bootstrap.Modal(document.getElementById('decodeConfirmModal')).show();
-    });
+      new bootstrap.Modal(document.getElementById('decodeConfirmModal')).show();
+  });
 
-    // 确认提交
-    $('#confirmDecodeSubmit').click(function () {
-        // 先触发表单提交
-        $('#decodeBtn').click();
+  // 确认提交
+  $('#confirmDecodeSubmit').click(function () {
+      // 立刻触发表单提交
+      $('#decodeBtn').click();
 
-        // 禁用所有输入并改成灰色样式
-        $('input, select').prop('disabled', true).css({
+      // 延迟禁用输入，保留 csrf
+      setTimeout(() => {
+        $('input:not([name=csrfmiddlewaretoken]), select').prop('disabled', true).css({
             backgroundColor: '#e9ecef',
             color: '#6c757d',
             cursor: 'not-allowed'
         });
+      }, 50);
 
-        // 显示进度条
-        $('#decode-loading-container').show();
-        const progressBar = $('#decodeProgressBar');
-        progressBar.width('0%').text('0%');
+      // 显示进度条
+      $('#decode-loading-container').show();
+      const progressBar = $('#decodeProgressBar');
+      progressBar.width('0%').text('0%');
 
-        // 模拟进度条（提交后可自行替换为真实后台进度）
-        let progress = 0;
-        const intervalId = setInterval(() => {
-            if (progress < 95) {
-                progress += Math.random() * 5;
-                progressBar.width(progress + '%').text(Math.floor(progress) + '%');
-            } else {
-                clearInterval(intervalId);
-                progressBar.width('100%').text('100%');
-            }
-        }, 100);
-    });
+      // 预估时间
+      const rebuildMethod = $('#rebuild_method').val() || 'default';
+      const copyNum = parseInt($('#copy_number_decode').val() || '1', 10);
+      const fileSizeKB = getFileSizeKB('#inputFile_decode', 200);
+
+      const totalDuration = estimateDuration({
+        stage: 'decode',
+        method: rebuildMethod,
+        copyNum,
+        fileSizeKB
+      });
+      const steps = durationToSteps(totalDuration);
+
+      // 启动进度条动画（和提交并行）
+      let step = 0;
+      const intervalMs = 100;
+      const intervalId = setInterval(() => {
+        if (step < steps) {
+          step++;
+          const progress = Math.min(95, Math.floor((step / steps) * 100));
+          progressBar.width(progress + '%').text(progress + '%');
+        } else {
+          clearInterval(intervalId);
+          progressBar.width('100%').text('100%');
+        }
+      }, intervalMs);
+  });
 }
+
 
     function initFilenameLabel(hiddenInputId, labelId) {
         const val = document.getElementById(hiddenInputId).value;
@@ -1254,50 +1308,52 @@
     }
     {#确认之后提交，并且有一个模拟进度条#}
     function simulateClusterProgressAndSubmit() {
-    let isProcessing = false; // 防重复标记
+  let isProcessing = false;
 
-    $('#confirmClusterSubmit').click(function () {
-        const confirmBtn = $(this);
+  $('#confirmClusterSubmit').click(function () {
+      if (isProcessing) return;
+      isProcessing = true;
 
-        if (isProcessing) {
-            return; // 已在处理，阻止重复点击
+      const confirmBtn = $(this);
+      confirmBtn.prop('disabled', true).text('Processing...');
+
+      const loadingContainer = $('#cluster-loading-container');
+      const progressBar = $('#clusterProgressBar');
+      loadingContainer.show();
+      progressBar.width('0%').text('0%');
+
+      // 预估时间
+      const clusterMethod = $('#cluster_method').val() || 'default';
+      const copyNum = parseInt($('#copy_number').val() || '1', 10);
+      const fileSizeKB = getFileSizeKB('#inputFile_simulate', 200);
+
+      const totalDuration = estimateDuration({
+        stage: 'cluster',
+        method: clusterMethod,
+        copyNum,
+        fileSizeKB
+      });
+      const steps = durationToSteps(totalDuration);
+
+      // 启动进度条动画（和提交并行）
+      let step = 0;
+      const intervalMs = 100;
+      const intervalId = setInterval(() => {
+        if (step < steps) {
+          step++;
+          const progress = Math.min(95, Math.floor((step / steps) * 100));
+          progressBar.width(progress + '%').text(progress + '%').attr('aria-valuenow', progress);
+        } else {
+          clearInterval(intervalId);
+          progressBar.width('100%').text('100%').attr('aria-valuenow', 100);
         }
-        isProcessing = true;
+      }, intervalMs);
 
-        // 1️⃣ 视觉上禁用按钮，显示处理中
-        confirmBtn.prop('disabled', true).text('Processing...');
-
-        // 2️⃣ 显示进度条
-        const loadingContainer = $('#cluster-loading-container');
-        const progressBar = $('#clusterProgressBar');
-        loadingContainer.show();
-        progressBar.width('0%').text('0%');
-
-        // 模拟进度条
-        let progress = 0;
-        let currentStep = 0;
-        const fileSizeKB = 200;  // 可根据需要动态调整
-        const level = Math.max(0, Math.ceil(Math.log2(fileSizeKB / 100)));
-        const totalDuration = 800 * Math.pow(2, level);
-        const steps = Math.floor(totalDuration / 100);
-
-        const intervalId = setInterval(() => {
-            if (currentStep < steps) {
-                currentStep++;
-                progress = Math.min(95, Math.floor((currentStep / steps) * 100));
-                progressBar.width(progress + '%').text(progress + '%').attr('aria-valuenow', progress);
-            } else {
-                clearInterval(intervalId);
-                progressBar.width('100%').text('100%').attr('aria-valuenow', 100);
-
-                // 3️⃣ 延迟触发真正提交
-                setTimeout(() => {
-                    $('#clusterBtn').click();
-                }, 300);
-            }
-        }, 100);
-    });
+      // 立刻触发表单提交（并行）
+      $('#clusterBtn').click();
+  });
 }
+
 
     {#clusterBtn的确认框#}
     function initClusterConfirm() {
