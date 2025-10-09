@@ -329,6 +329,7 @@ class DerrickEncode(AbstractEncode):
         return allseqs
 
     def seqs_plus_indexs(self,dna_sequences):
+        print("当前工作目录:", os.getcwd())
         indexs = self.readtxt('./edit3.c.qj.txt')
         indexs = indexs[:len(dna_sequences)]
         # 给序列添加index
