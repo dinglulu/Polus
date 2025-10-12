@@ -2,7 +2,7 @@
 <p align="center">
   <img src="/Polus - 9.28.png" alt="Polus Logo" width="1600"/>
 </p>
-------
+
 
 ⚙️ **POLUS** is a comprehensive evaluation and reconstruction platform for **DNA data storage**, integrating multiple codec algorithms, simulators, and reconstruction methods with an interactive web interface and containerized deployment.
 
@@ -290,6 +290,7 @@ If you use **POLUS** in your research, please cite:
 > *POLUS: A Modular Platform for DNA Storage Evaluation and Reconstruction.*
 
 ------
+
 
 
 
