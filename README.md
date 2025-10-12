@@ -1,12 +1,12 @@
 
-
+# Polus
 ------
 
 <p align="center">
   <img src="/Polus - 9.28.png" alt="Polus Logo" width="1600"/>
 </p>
 
-# Polus
+
 
 ****
 
@@ -304,4 +304,5 @@ Access POLUS in your browser:
 Ensure port **8045** is open in your firewall or cloud security group.
 
 ------
+
 
