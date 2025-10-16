@@ -287,9 +287,10 @@ Access POLUS:
 
 If you use **POLUS** in your research, please cite:
 
-> *POLUS: A Modular Platform for DNA Storage Evaluation and Reconstruction.*
+> *Polus: a Transformer-based Soft-decision Codec Enhancement Platform for DNA Storage*
 
 ------
+
 
 
 
