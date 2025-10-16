@@ -4,7 +4,7 @@
 </p>
 
 
-⚙️ **POLUS**  integrates four configurable stages namely Encoding, Simulation, Decoding, and Evaluation into an end-to-end in-silico **DNA storage pipeline**, with an interactive web interface and containerized deployment. Unlike the existing platforms that primarily focus on codec aggregation or error simulation, Polus is distinguished by its Decoding module which incorporates SeqFormer’s calibrated per-base probabilities to generalize soft-decision decoding across codecs, increasing the effective error-correction capacity of existing schemes without modifying the encoders.
+⚙️ **POLUS**  integrates four configurable stages namely Encoding, Simulation, Decoding, and Evaluation into an end-to-end in-silico **DNA storage pipeline**, with an interactive web interface and containerized deployment. Polus is distinguished by its Decoding module which incorporates SeqFormer’s calibrated per-base probabilities to generalize soft-decision decoding across codecs, increasing the effective error-correction capacity of existing schemes without modifying the encoders.
 
 ------
 
@@ -290,6 +290,7 @@ If you use **POLUS** in your research, please cite:
 > *Polus: a Transformer-based Soft-decision Codec Enhancement Platform for DNA Storage*
 
 ------
+
 
 
 
